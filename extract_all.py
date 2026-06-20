@@ -159,11 +159,11 @@ body.dark .search-stat .value.orange {{ color: #ffb74d; }}
 .tab-btn.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
-.charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }}
-.chart-box {{ background: var(--surface); padding: 14px; border: 1px solid var(--border); }}
+.charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; min-width: 0; }}
+.chart-box {{ background: var(--surface); padding: 14px; border: 1px solid var(--border); min-width: 0; overflow: hidden; }}
 .chart-box.full {{ grid-column: 1 / -1; }}
 .chart-box h3 {{ font-size: 13px; margin-bottom: 8px; color: var(--text); }}
-canvas {{ max-height: 280px; }}
+canvas {{ width: 100% !important; max-width: 100%; height: auto !important; max-height: 300px; }}
 .table-wrap {{ background: var(--surface); padding: 14px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 14px; }}
 .table-wrap h3 {{ font-size: 13px; margin-bottom: 8px; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
@@ -302,7 +302,7 @@ bins[idx].count++;
 new Chart(document.getElementById('distChart'), {{
 type: 'bar',
 data: {{ labels: bins.map(b => b.label), datasets: [{{ label: 'Candidates', data: bins.map(b => b.count), backgroundColor: 'rgba(26, 35, 126, 0.7)', borderColor: '#1a237e', borderWidth: 1 }}] }},
-options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Marks Range' }} }}, y: {{ title: {{ display: true, text: 'Candidates' }}, beginAtZero: true }} }} }}
+options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Marks Range' }} }}, y: {{ title: {{ display: true, text: 'Candidates' }}, beginAtZero: true }} }} }}
 }});
 }}
 
@@ -312,7 +312,7 @@ const pts = sorted.map((d,i) => ({{ pctl: ((i+1)/sorted.length)*100, marks: d.ma
 new Chart(document.getElementById('pctlChart'), {{
 type: 'line',
 data: {{ labels: pts.map(d => d.pctl.toFixed(0)), datasets: [{{ label: 'Marks', data: pts.map(d => d.marks), borderColor: '#1a237e', backgroundColor: 'rgba(26,35,126,0.1)', fill: true, tension: 0.4, pointRadius: 0 }}] }},
-options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Percentile' }} }}, y: {{ title: {{ display: true, text: 'Marks' }} }} }} }}
+options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Percentile' }} }}, y: {{ title: {{ display: true, text: 'Marks' }} }} }} }}
 }});
 }}
 
@@ -321,7 +321,7 @@ const top = allData.slice(0, 20);
 new Chart(document.getElementById('topChart'), {{
 type: 'bar',
 data: {{ labels: top.map(d => d.reg), datasets: [{{ label: 'Marks', data: top.map(d => d.marks), backgroundColor: 'rgba(46, 125, 50, 0.7)', borderColor: '#2e7d32', borderWidth: 1 }}] }},
-options: {{ responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Marks' }}, beginAtZero: true }}, y: {{ title: {{ display: true, text: 'Registration No' }} }} }} }}
+options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 1.2, indexAxis: 'y', plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Marks' }}, beginAtZero: true }}, y: {{ title: {{ display: true, text: 'Registration No' }} }} }} }}
 }});
 }}
 
@@ -331,7 +331,8 @@ const vals = Object.values(cutoffs);
 new Chart(document.getElementById('cutoffChart'), {{
 type: 'bar',
 data: {{ labels, datasets: [{{ label: 'Min Marks', data: vals, backgroundColor: 'rgba(198, 40, 40, 0.7)', borderColor: '#c62828', borderWidth: 1 }}] }},
-options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Category' }} }}, y: {{ title: {{ display: true, text: 'Marks' }}, beginAtZero: true }} }} }}
+options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Category' }} }}, y: {{ title: {{ display: true, text: 'Marks' }}, beginAtZero: true }} }} }}<//parameter>
+
 }});
 }}
 
