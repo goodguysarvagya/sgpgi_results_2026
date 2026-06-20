@@ -236,8 +236,7 @@ const vals = Object.values(cutoffs);
 new Chart(document.getElementById('cutoffChart'), {
 type: 'bar',
 data: { labels, datasets: [{ label: 'Min Marks', data: vals, backgroundColor: 'rgba(198, 40, 40, 0.7)', borderColor: '#c62828', borderWidth: 1 }] },
-options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Category' } }, y: { title: { display: true, text: 'Marks' }, beginAtZero: true } } }<//parameter>
-
+options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Category' } }, y: { title: { display: true, text: 'Marks' }, beginAtZero: true } } }
 });
 }
 
