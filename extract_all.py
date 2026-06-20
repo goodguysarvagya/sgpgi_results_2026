@@ -3,6 +3,12 @@ from pathlib import Path
 from collections import defaultdict
 
 out_dir = Path(r"C:\Users\Sarvagya\Desktop\sgpgi_data")
+data_combined = out_dir / "data" / "combined"
+data_per_day = out_dir / "data" / "per_day"
+html_combined = out_dir / "analysis" / "combined"
+html_per_day = out_dir / "analysis" / "per_day"
+for d in [data_combined, data_per_day, html_combined, html_per_day]:
+    d.mkdir(parents=True, exist_ok=True)
 
 VACANCIES = {
     "Nursing Officer": {"advt": "I/08/1/Rectt/2025-26", "sc": 253, "st": 24, "obc": 324, "ews": 119, "ur": 480, "total": 1200, "level": "Level-7", "group": "B"},
@@ -22,7 +28,7 @@ VACANCIES = {
 def safe(n):
     return re.sub(r'[^\w\s-]', '', n).strip().replace(' ', '_').replace('.', '')
 
-def process_and_export(subj_name, safe_name, records, filename_tag, source_label):
+def process_and_export(subj_name, safe_name, records, filename_tag, source_label, is_combined=True):
     sorted_recs = sorted(records, key=lambda x: x["Marks"], reverse=True)
     for i, r in enumerate(sorted_recs):
         r["Rank"] = i + 1
@@ -32,7 +38,16 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
 
     sorted_by_roll = sorted(sorted_recs, key=lambda x: int(x["Roll_No"]))
 
-    csv_path = out_dir / f"{filename_tag}_analysis.csv"
+    if is_combined:
+        csv_dir = data_combined
+        html_dir = html_combined
+        csv_rel = f"data/combined/{filename_tag}_analysis.csv"
+    else:
+        csv_dir = data_per_day
+        html_dir = html_per_day
+        csv_rel = f"data/per_day/{filename_tag}_analysis.csv"
+
+    csv_path = csv_dir / f"{filename_tag}_analysis.csv"
     with open(csv_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["Day", "Exam_Date", "Rank", "Registration_No", "Roll_No", "Marks", "Percentile"])
         writer.writeheader()
@@ -64,10 +79,10 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
         "level": vac.get("level", ""), "group": vac.get("group", "")
     }
 
-    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label)
+    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir)
     print(f"  [{source_label}] CSV+HTML: {csv_path.name}")
 
-def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label):
+def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir):
     total = stats["total"]
     all_json = json.dumps([{
         "rank": r["Rank"], "day": r.get("Day", ""),
@@ -76,6 +91,7 @@ def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_labe
     } for r in sorted_recs])
     cutoffs_json = json.dumps(stats["cutoffs"])
     header_suffix = f" ({source_label})" if source_label != "Combined" else ""
+    back_link = "../../index.html"
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -151,7 +167,7 @@ tr:hover td {{ background: #f5f5ff; }}
 </head>
 <body>
 <div class="container">
-<a class="back-link" href="index.html">&larr; Back to All Positions</a>
+<a class="back-link" href="{back_link}">&larr; Back to All Positions</a>
 <h1>{subj_name}{header_suffix}</h1>
 <p class="subtitle">SGPGIMS Raw Score Analysis</p>
 
@@ -390,7 +406,7 @@ loadData();
 </script>
 </body>
 </html>"""
-    html_path = out_dir / f"{filename_tag}_analysis.html"
+    html_path = html_dir / f"{filename_tag}_analysis.html"
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
@@ -429,16 +445,16 @@ def gen_index(all_positions):
 
         links = ""
         if info["total"] > 0 and len(info["days"]) > 1:
-            links = f'<div class="links"><a href="{safe_name}_analysis.html">Combined ({info["total"]})</a>'
+            links = f'<div class="links"><a href="analysis/combined/{safe_name}_analysis.html">Combined ({info["total"]})</a>'
             for d in info["days"]:
                 ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
                 dc = sum(1 for r in all_positions[pos_name] if r["Day"] == d)
-                links += f'<a href="{safe_name}_{ds}_analysis.html">{d} ({dc})</a>'
+                links += f'<a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{d} ({dc})</a>'
             links += "</div>"
         if info["total"] > 0 and len(info["days"]) == 1:
             d = list(info["days"])[0]
             ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
-            links = f'<div class="links"><a href="{safe_name}_{ds}_analysis.html">{info["total"]} candidates</a></div>'
+            links = f'<div class="links"><a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{info["total"]} candidates</a></div>'
         if info["total"] == 0:
             links = '<div class="links" style="color:#999;font-size:12px;">No exam data yet</div>'
 
@@ -516,8 +532,8 @@ h1 {{ text-align: center; color: #1a237e; font-size: 28px; }}
     print(f"\nIndex HTML: index.html")
 
 pdfs = [
-    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\Day1_Raw_Score_19_July_2026.pdf", "Day 1 (19 July 2026)", "19 July 2026"),
-    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\Day2_Raw_Score_20_June_2026.pdf", "Day 2 (20 June 2026)", "20 June 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day1_Raw_Score_19_July_2026.pdf", "Day 1 (19 July 2026)", "19 July 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day2_Raw_Score_20_June_2026.pdf", "Day 2 (20 June 2026)", "20 June 2026"),
 ]
 
 all_positions = defaultdict(list)
@@ -548,13 +564,13 @@ for pdf_path, day_label, exam_date in pdfs:
         safe_name = re.sub(r'[^\w\s-]', '', subj_name).strip().replace(' ', '_').replace('.', '')
         day_safe = day_label.lower().replace(' ', '_').replace('(', '').replace(')', '')
         filename_tag = f"{safe_name}_{day_safe}"
-        process_and_export(subj_name, safe_name, records, filename_tag, day_label)
+        process_and_export(subj_name, safe_name, records, filename_tag, day_label, is_combined=False)
 
     print(f"  Processed: {day_label} ({exam_date}) — {len(matches)} records across {len(day_records)} positions")
 
 for subj_name, records in sorted(all_positions.items()):
     safe_name = re.sub(r'[^\w\s-]', '', subj_name).strip().replace(' ', '_').replace('.', '')
-    process_and_export(subj_name, safe_name, records, safe_name, "Combined")
+    process_and_export(subj_name, safe_name, records, safe_name, "Combined", is_combined=True)
     print(f"  Combined: {subj_name} — {len(records)} records")
 
 gen_index(all_positions)

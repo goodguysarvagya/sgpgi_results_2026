@@ -1,4 +1,5 @@
-# Raw exam PDFs contain candidate personal data - DO NOT TRACK
+# Raw exam PDFs contain candidate personal data
+raw/
 *.pdf
 
 # Python cache

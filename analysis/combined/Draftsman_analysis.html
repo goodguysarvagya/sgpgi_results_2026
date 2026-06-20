@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nuclear Medicine Technologist - Analysis</title>
+<title>Draftsman - Analysis</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -72,8 +72,8 @@ tr:hover td { background: #f5f5ff; }
 </head>
 <body>
 <div class="container">
-<a class="back-link" href="index.html">&larr; Back to All Positions</a>
-<h1>Nuclear Medicine Technologist</h1>
+<a class="back-link" href="../../index.html">&larr; Back to All Positions</a>
+<h1>Draftsman</h1>
 <p class="subtitle">SGPGIMS Raw Score Analysis</p>
 
 <div class="vacancy-box" id="vacancyBox"></div>
@@ -93,7 +93,7 @@ tr:hover td { background: #f5f5ff; }
 <div class="search-result-body" id="searchResultBody"></div>
 <div class="rank-gauge-wrap" id="rankGaugeWrap">
 <div class="rank-gauge"><div class="rank-gauge-fill" id="rankGaugeFill" style="width:0%"></div></div>
-<div class="rank-gauge-label"><span>Last (Rank 16)</span><span id="gaugeMiddleLabel">Middle</span><span>Topper (Rank 1)</span></div>
+<div class="rank-gauge-label"><span>Last (Rank 18)</span><span id="gaugeMiddleLabel">Middle</span><span>Topper (Rank 1)</span></div>
 </div>
 </div>
 
@@ -142,10 +142,10 @@ tr:hover td { background: #f5f5ff; }
 
 <script>
 const PAGE_SIZE = 50;
-let allData = [{"rank": 1, "day": "Day 1 (19 July 2026)", "reg": "SG250023947", "roll": "1010400003", "marks": 65.37, "pctl": 100.0}, {"rank": 2, "day": "Day 1 (19 July 2026)", "reg": "SG250099785", "roll": "1020400015", "marks": 52.41, "pctl": 93.75}, {"rank": 3, "day": "Day 1 (19 July 2026)", "reg": "SG250057998", "roll": "1010400005", "marks": 52.36, "pctl": 87.5}, {"rank": 4, "day": "Day 1 (19 July 2026)", "reg": "SG250018184", "roll": "1030400018", "marks": 50.78, "pctl": 81.25}, {"rank": 5, "day": "Day 1 (19 July 2026)", "reg": "SG250057626", "roll": "1050400025", "marks": 49.41, "pctl": 75.0}, {"rank": 6, "day": "Day 1 (19 July 2026)", "reg": "SG250051291", "roll": "1020400013", "marks": 48.06, "pctl": 68.75}, {"rank": 7, "day": "Day 1 (19 July 2026)", "reg": "SG250108782", "roll": "1010400009", "marks": 46.75, "pctl": 62.5}, {"rank": 8, "day": "Day 1 (19 July 2026)", "reg": "SG250035767", "roll": "1010400004", "marks": 45.03, "pctl": 56.25}, {"rank": 9, "day": "Day 1 (19 July 2026)", "reg": "SG250064717", "roll": "1030400020", "marks": 36.69, "pctl": 50.0}, {"rank": 10, "day": "Day 1 (19 July 2026)", "reg": "SG250078233", "roll": "1010400008", "marks": 34.72, "pctl": 43.75}, {"rank": 11, "day": "Day 1 (19 July 2026)", "reg": "SG250011361", "roll": "1020400011", "marks": 31.08, "pctl": 37.5}, {"rank": 12, "day": "Day 1 (19 July 2026)", "reg": "SG250002572", "roll": "1010400001", "marks": 28.13, "pctl": 31.25}, {"rank": 13, "day": "Day 1 (19 July 2026)", "reg": "SG250064863", "roll": "1010400006", "marks": 26.76, "pctl": 25.0}, {"rank": 14, "day": "Day 1 (19 July 2026)", "reg": "SG250023721", "roll": "1020400012", "marks": 22.81, "pctl": 18.75}, {"rank": 15, "day": "Day 1 (19 July 2026)", "reg": "SG250002597", "roll": "1010400002", "marks": 19.82, "pctl": 12.5}, {"rank": 16, "day": "Day 1 (19 July 2026)", "reg": "SG250003589", "roll": "1020400010", "marks": 19.38, "pctl": 6.25}];
+let allData = [{"rank": 1, "day": "Day 1 (19 July 2026)", "reg": "SG250140510", "roll": "1011000007", "marks": 52.08, "pctl": 100.0}, {"rank": 2, "day": "Day 1 (19 July 2026)", "reg": "SG250094037", "roll": "1041000037", "marks": 45.44, "pctl": 94.44}, {"rank": 3, "day": "Day 1 (19 July 2026)", "reg": "SG250032680", "roll": "1031000022", "marks": 38.12, "pctl": 88.89}, {"rank": 4, "day": "Day 1 (19 July 2026)", "reg": "SG250058526", "roll": "1021000015", "marks": 35.75, "pctl": 83.33}, {"rank": 5, "day": "Day 1 (19 July 2026)", "reg": "SG250109131", "roll": "1051000042", "marks": 35.75, "pctl": 77.78}, {"rank": 6, "day": "Day 1 (19 July 2026)", "reg": "SG250052358", "roll": "1021000014", "marks": 35.41, "pctl": 72.22}, {"rank": 7, "day": "Day 1 (19 July 2026)", "reg": "SG250014911", "roll": "1041000031", "marks": 27.82, "pctl": 66.67}, {"rank": 8, "day": "Day 1 (19 July 2026)", "reg": "SG250108730", "roll": "1011000005", "marks": 27.78, "pctl": 61.11}, {"rank": 9, "day": "Day 1 (19 July 2026)", "reg": "SG250057895", "roll": "1011000002", "marks": 22.83, "pctl": 55.56}, {"rank": 10, "day": "Day 1 (19 July 2026)", "reg": "SG250093807", "roll": "1021000019", "marks": 21.48, "pctl": 50.0}, {"rank": 11, "day": "Day 1 (19 July 2026)", "reg": "SG250028052", "roll": "1021000011", "marks": 19.42, "pctl": 44.44}, {"rank": 12, "day": "Day 1 (19 July 2026)", "reg": "SG250141425", "roll": "1031000028", "marks": 15.04, "pctl": 38.89}, {"rank": 13, "day": "Day 1 (19 July 2026)", "reg": "SG250028804", "roll": "1021000012", "marks": 14.86, "pctl": 33.33}, {"rank": 14, "day": "Day 1 (19 July 2026)", "reg": "SG250086113", "roll": "1051000041", "marks": 12.53, "pctl": 27.78}, {"rank": 15, "day": "Day 1 (19 July 2026)", "reg": "SG250067865", "roll": "1011000004", "marks": 9.77, "pctl": 22.22}, {"rank": 16, "day": "Day 1 (19 July 2026)", "reg": "SG250013993", "roll": "1021000010", "marks": 7.49, "pctl": 16.67}, {"rank": 17, "day": "Day 1 (19 July 2026)", "reg": "SG250139526", "roll": "1011000006", "marks": 0.25, "pctl": 11.11}, {"rank": 18, "day": "Day 1 (19 July 2026)", "reg": "SG250111559", "roll": "1031000025", "marks": 0.25, "pctl": 5.56}];
 let currentPage = 1;
-const stats = {"name": "Nuclear Medicine Technologist", "total": 16, "highest": 65.37, "lowest": 19.38, "average": 39.35, "median": 40.86, "std_dev": 13.34, "positive": 16, "negative": 0, "cutoffs": {"Top 1%": 19.38, "Top 5%": 19.38, "Top 10%": 19.82, "Top 20%": 26.76, "Top 25%": 26.76, "Top 30%": 28.13, "Top 40%": 34.72, "Top 50%": 36.69, "Top 60%": 46.75, "Top 70%": 49.41, "Top 75%": 49.41, "Top 80%": 50.78, "Top 90%": 52.41, "Top 95%": 65.37, "Top 99%": 65.37}, "advt": "I/08/4/Rectt/2025-26", "vac_total": 7, "sc": 2, "st": 0, "obc": 2, "ews": 0, "ur": 3, "level": "Level-5", "group": "C"};
-const cutoffs = {"Top 1%": 19.38, "Top 5%": 19.38, "Top 10%": 19.82, "Top 20%": 26.76, "Top 25%": 26.76, "Top 30%": 28.13, "Top 40%": 34.72, "Top 50%": 36.69, "Top 60%": 46.75, "Top 70%": 49.41, "Top 75%": 49.41, "Top 80%": 50.78, "Top 90%": 52.41, "Top 95%": 65.37, "Top 99%": 65.37};
+const stats = {"name": "Draftsman", "total": 18, "highest": 52.08, "lowest": 0.25, "average": 23.45, "median": 22.16, "std_dev": 14.54, "positive": 18, "negative": 0, "cutoffs": {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08}, "advt": "I/08/10/Rectt/2025-26", "vac_total": 1, "sc": 0, "st": 0, "obc": 0, "ews": 0, "ur": 1, "level": "Level-4", "group": "C"};
+const cutoffs = {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08};
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
