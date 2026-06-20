@@ -81,6 +81,8 @@ tr:hover td { background: var(--hover-bg); }
 .pagination button { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .pagination button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
 .pagination button:hover:not(.active) { background: var(--hover-bg); }
+.filter-input { padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }
+.filter-input:focus { border-color: var(--accent); }
 @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -138,7 +140,7 @@ tr:hover td { background: var(--hover-bg); }
 <div id="tab-top100" class="tab-content">
 <div class="table-wrap">
 <h3>Top 100 Candidates</h3>
-<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
 <tbody id="top100Body"></tbody></table>
 </div>
 </div>
@@ -147,9 +149,9 @@ tr:hover td { background: var(--hover-bg); }
 <div class="table-wrap">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
 <h3 style="margin:0">All Candidates</h3>
-<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:12px;width:240px;" oninput="filterTable()">
+<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
 </div>
-<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
 <tbody id="allBody"></tbody></table>
 <div class="pagination" id="pagination"></div>
 </div>
@@ -162,6 +164,7 @@ let allData = [{"rank": 1, "day": "Day 2 (20 June 2026)", "reg": "SG250026809", 
 let currentPage = 1;
 const stats = {"name": "Senior Administrative Assistant", "total": 1526, "highest": 92.68, "lowest": -7.73, "average": 35.88, "median": 35.77, "std_dev": 18.82, "positive": 1507, "negative": 19, "cutoffs": {"Top 1%": -0.44, "Top 5%": 5.8, "Top 10%": 10.18, "Top 20%": 18.19, "Top 25%": 21.17, "Top 30%": 24.4, "Top 40%": 30.46, "Top 50%": 35.76, "Top 60%": 41.12, "Top 70%": 47.1, "Top 75%": 50.09, "Top 80%": 53.05, "Top 90%": 61.09, "Top 95%": 66.75, "Top 99%": 75.7}, "advt": "I/08/7/Rectt/2025-26", "vac_total": 32, "sc": 7, "st": 1, "obc": 8, "ews": 3, "ur": 13, "level": "Level-4", "group": "C"};
 const cutoffs = {"Top 1%": -0.44, "Top 5%": 5.8, "Top 10%": 10.18, "Top 20%": 18.19, "Top 25%": 21.17, "Top 30%": 24.4, "Top 40%": 30.46, "Top 50%": 35.76, "Top 60%": 41.12, "Top 70%": 47.1, "Top 75%": 50.09, "Top 80%": 53.05, "Top 90%": 61.09, "Top 95%": 66.75, "Top 99%": 75.7};
+const showDay = false;
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
@@ -245,7 +248,7 @@ document.getElementById('cutoffTableBody').innerHTML = Object.entries(cutoffs).m
 }
 
 function renderTop100() {
-document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td>${showDay?`<td><span class="day-badge">${d.day||''}</span></td>`:''}<td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
 }
 
 function renderTable(page) {
@@ -253,7 +256,7 @@ currentPage = page;
 const start = (page - 1) * PAGE_SIZE;
 const end = Math.min(start + PAGE_SIZE, allData.length);
 const tbody = document.getElementById('allBody');
-tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td>${showDay?`<td><span class="day-badge">${d.day||''}</span></td>`:''}<td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
 renderPagination();
 }
 
@@ -273,7 +276,7 @@ const q = document.getElementById('searchInput').value.toLowerCase();
 const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll.includes(q)) : allData;
 const tbody = document.getElementById('allBody');
 if (q) {
-tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td>${showDay?`<td><span class="day-badge">${d.day||''}</span></td>`:''}<td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
 document.getElementById('pagination').innerHTML = '';
 } else { renderTable(1); }
 }

@@ -79,11 +79,15 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
         "level": vac.get("level", ""), "group": vac.get("group", "")
     }
 
-    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir)
+    days_count = len(set(r.get("Day", "") for r in sorted_recs))
+    show_day_col = "true" if days_count > 1 else "false"
+
+    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col)
     print(f"  [{source_label}] CSV+HTML: {csv_path.name}")
 
-def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir):
+def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col="true"):
     total = stats["total"]
+    day_th = "<th>Day</th>" if show_day_col == "true" else ""
     all_json = json.dumps([{
         "rank": r["Rank"], "day": r.get("Day", ""),
         "reg": r["Registration_No"], "roll": r["Roll_No"],
@@ -176,6 +180,8 @@ tr:hover td {{ background: var(--hover-bg); }}
 .pagination button {{ padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }}
 .pagination button.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
 .pagination button:hover:not(.active) {{ background: var(--hover-bg); }}
+.filter-input {{ padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }}
+.filter-input:focus {{ border-color: var(--accent); }}
 @media (max-width: 900px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
 </style>
 </head>
@@ -233,7 +239,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 <div id="tab-top100" class="tab-content">
 <div class="table-wrap">
 <h3>Top 100 Candidates</h3>
-<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
 <tbody id="top100Body"></tbody></table>
 </div>
 </div>
@@ -242,9 +248,9 @@ tr:hover td {{ background: var(--hover-bg); }}
 <div class="table-wrap">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
 <h3 style="margin:0">All Candidates</h3>
-<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:12px;width:240px;" oninput="filterTable()">
+<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
 </div>
-<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
 <tbody id="allBody"></tbody></table>
 <div class="pagination" id="pagination"></div>
 </div>
@@ -257,6 +263,7 @@ let allData = {all_json};
 let currentPage = 1;
 const stats = {json.dumps(stats)};
 const cutoffs = {cutoffs_json};
+const showDay = {show_day_col};
 
 function loadData() {{
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
@@ -340,7 +347,7 @@ document.getElementById('cutoffTableBody').innerHTML = Object.entries(cutoffs).m
 }}
 
 function renderTop100() {{
-document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td><td><span class="day-badge">${{d.day||''}}</span></td><td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 }}
 
 function renderTable(page) {{
@@ -348,7 +355,7 @@ currentPage = page;
 const start = (page - 1) * PAGE_SIZE;
 const end = Math.min(start + PAGE_SIZE, allData.length);
 const tbody = document.getElementById('allBody');
-tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td><td><span class="day-badge">${{d.day||''}}</span></td><td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 renderPagination();
 }}
 
@@ -368,7 +375,7 @@ const q = document.getElementById('searchInput').value.toLowerCase();
 const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll.includes(q)) : allData;
 const tbody = document.getElementById('allBody');
 if (q) {{
-tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td><td><span class="day-badge">${{d.day||''}}</span></td><td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 document.getElementById('pagination').innerHTML = '';
 }} else {{ renderTable(1); }}
 }}
