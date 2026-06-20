@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Officer (CWS Biomedical) (Day 1 (19 July 2026)) - Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; padding: 20px; }
+.container { max-width: 1400px; margin: 0 auto; }
+h1 { text-align: center; margin-bottom: 4px; color: #1a237e; font-size: 26px; }
+.subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 13px; }
+.back-link { display: inline-block; margin-bottom: 12px; color: #1a237e; text-decoration: none; font-size: 13px; font-weight: 600; }
+.back-link:hover { text-decoration: underline; }
+.vacancy-box { background: white; border-radius: 10px; padding: 14px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 13px; }
+.vacancy-box .vac-tag { background: #e8eaf6; color: #1a237e; padding: 3px 10px; border-radius: 12px; font-weight: 600; font-size: 11px; }
+.vacancy-box .vac-advt { color: #555; }
+.vacancy-box .vac-cat { display: inline-flex; align-items: center; gap: 4px; }
+.vacancy-box .vac-cat span { background: #f5f5ff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: white; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.stat-card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.stat-card .value { font-size: 24px; font-weight: 700; margin-top: 4px; color: #1a237e; }
+.stat-card .value.green { color: #2e7d32; }
+.stat-card .value.red { color: #c62828; }
+.search-section { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search-section input { flex: 1; min-width: 200px; padding: 9px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; }
+.search-section input:focus { border-color: #1a237e; }
+.search-section button { padding: 9px 22px; background: #1a237e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.search-section button:hover { background: #283593; }
+.search-result { background: white; border-radius: 10px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; overflow: hidden; display: none; }
+.search-result.show { display: block; }
+.search-result-header { background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+.search-result-header h2 { font-size: 16px; }
+.search-result-header .close-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; }
+.search-result-body { padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.search-stat { text-align: center; padding: 10px; background: #f5f5ff; border-radius: 8px; }
+.search-stat .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.search-stat .value { font-size: 20px; font-weight: 700; margin-top: 4px; color: #1a237e; }
+.search-stat .value.green { color: #2e7d32; }
+.search-stat .value.red { color: #c62828; }
+.search-stat .value.orange { color: #e65100; }
+.rank-gauge-wrap { padding: 0 20px 16px; }
+.rank-gauge { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+.rank-gauge-fill { height: 100%; background: linear-gradient(90deg, #c62828, #e65100, #f9a825, #2e7d32); border-radius: 4px; transition: width 0.6s ease; }
+.rank-gauge-label { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-top: 3px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn { padding: 7px 18px; border: none; background: #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.tab-btn.active { background: #1a237e; color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.chart-box { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.chart-box.full { grid-column: 1 / -1; }
+.chart-box h3 { font-size: 14px; margin-bottom: 10px; color: #333; }
+canvas { max-height: 300px; }
+.table-wrap { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto; margin-bottom: 16px; }
+.table-wrap h3 { font-size: 14px; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: #1a237e; color: white; padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+tr:hover td { background: #f5f5ff; }
+.rank-badge { background: #1a237e; color: white; border-radius: 4px; padding: 1px 6px; font-size: 11px; font-weight: 600; }
+.day-badge { background: #e8eaf6; color: #1a237e; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; }
+.pagination { display: flex; justify-content: center; gap: 4px; margin-top: 12px; flex-wrap: wrap; }
+.pagination button { padding: 5px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 12px; }
+.pagination button.active { background: #1a237e; color: white; border-color: #1a237e; }
+.pagination button:hover:not(.active) { background: #e8eaf6; }
+@media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back-link" href="index.html">&larr; Back to All Positions</a>
+<h1>Technical Officer (CWS Biomedical) (Day 1 (19 July 2026))</h1>
+<p class="subtitle">SGPGIMS Raw Score Analysis</p>
+
+<div class="vacancy-box" id="vacancyBox"></div>
+
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="search-section">
+<input id="candidateSearchInput" type="text" placeholder="Enter Registration No or Roll No..." onkeydown="if(event.key==='Enter') searchCandidate()">
+<button onclick="searchCandidate()">Search</button>
+</div>
+
+<div class="search-result" id="searchResult">
+<div class="search-result-header">
+<h2 id="searchResultTitle">Candidate Details</h2>
+<button class="close-btn" onclick="closeSearch()">&times;</button>
+</div>
+<div class="search-result-body" id="searchResultBody"></div>
+<div class="rank-gauge-wrap" id="rankGaugeWrap">
+<div class="rank-gauge"><div class="rank-gauge-fill" id="rankGaugeFill" style="width:0%"></div></div>
+<div class="rank-gauge-label"><span>Last (Rank 62)</span><span id="gaugeMiddleLabel">Middle</span><span>Topper (Rank 1)</span></div>
+</div>
+</div>
+
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('charts')">Charts</button>
+<button class="tab-btn" onclick="switchTab('top100')">Top 100</button>
+<button class="tab-btn" onclick="switchTab('all')">All Candidates</button>
+</div>
+
+<div id="tab-charts" class="tab-content active">
+<div class="charts-row">
+<div class="chart-box"><h3>Marks Distribution</h3><canvas id="distChart"></canvas></div>
+<div class="chart-box"><h3>Percentile Curve</h3><canvas id="pctlChart"></canvas></div>
+</div>
+<div class="charts-row">
+<div class="chart-box"><h3>Top 20 Rankers</h3><canvas id="topChart"></canvas></div>
+<div class="chart-box"><h3>Percentile Cutoffs</h3><canvas id="cutoffChart"></canvas></div>
+</div>
+<div class="table-wrap full">
+<h3>Percentile Cutoff Table</h3>
+<table><thead><tr><th>Rank Group</th><th>Minimum Marks</th></tr></thead>
+<tbody id="cutoffTableBody"></tbody></table>
+</div>
+</div>
+
+<div id="tab-top100" class="tab-content">
+<div class="table-wrap">
+<h3>Top 100 Candidates</h3>
+<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<tbody id="top100Body"></tbody></table>
+</div>
+</div>
+
+<div id="tab-all" class="tab-content">
+<div class="table-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+<h3 style="margin:0">All Candidates</h3>
+<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:12px;width:240px;" oninput="filterTable()">
+</div>
+<table><thead><tr><th>Rank</th><th>Day</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<tbody id="allBody"></tbody></table>
+<div class="pagination" id="pagination"></div>
+</div>
+</div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allData = [{"rank": 1, "day": "Day 1 (19 July 2026)", "reg": "SG250097810", "roll": "1020300057", "marks": 80.68, "pctl": 100.0}, {"rank": 2, "day": "Day 1 (19 July 2026)", "reg": "SG250140099", "roll": "1020300067", "marks": 52.74, "pctl": 98.39}, {"rank": 3, "day": "Day 1 (19 July 2026)", "reg": "SG250051106", "roll": "1010300014", "marks": 46.72, "pctl": 96.77}, {"rank": 4, "day": "Day 1 (19 July 2026)", "reg": "SG250013702", "roll": "1020300030", "marks": 45.47, "pctl": 95.16}, {"rank": 5, "day": "Day 1 (19 July 2026)", "reg": "SG250040521", "roll": "1050300121", "marks": 43.06, "pctl": 93.55}, {"rank": 6, "day": "Day 1 (19 July 2026)", "reg": "SG250039532", "roll": "1010300010", "marks": 39.05, "pctl": 91.94}, {"rank": 7, "day": "Day 1 (19 July 2026)", "reg": "SG250015407", "roll": "1040300093", "marks": 37.76, "pctl": 90.32}, {"rank": 8, "day": "Day 1 (19 July 2026)", "reg": "SG250020378", "roll": "1010300005", "marks": 36.82, "pctl": 88.71}, {"rank": 9, "day": "Day 1 (19 July 2026)", "reg": "SG250137587", "roll": "1020300066", "marks": 36.15, "pctl": 87.1}, {"rank": 10, "day": "Day 1 (19 July 2026)", "reg": "SG250016441", "roll": "1020300031", "marks": 34.43, "pctl": 85.48}, {"rank": 11, "day": "Day 1 (19 July 2026)", "reg": "SG250004780", "roll": "1040300091", "marks": 34.41, "pctl": 83.87}, {"rank": 12, "day": "Day 1 (19 July 2026)", "reg": "SG250102884", "roll": "1010300019", "marks": 34.1, "pctl": 82.26}, {"rank": 13, "day": "Day 1 (19 July 2026)", "reg": "SG250011647", "roll": "1040300092", "marks": 33.8, "pctl": 80.65}, {"rank": 14, "day": "Day 1 (19 July 2026)", "reg": "SG250048226", "roll": "1030300079", "marks": 32.82, "pctl": 79.03}, {"rank": 15, "day": "Day 1 (19 July 2026)", "reg": "SG250023092", "roll": "1020300034", "marks": 32.13, "pctl": 77.42}, {"rank": 16, "day": "Day 1 (19 July 2026)", "reg": "SG250068374", "roll": "1020300048", "marks": 31.79, "pctl": 75.81}, {"rank": 17, "day": "Day 1 (19 July 2026)", "reg": "SG250048393", "roll": "1020300040", "marks": 31.4, "pctl": 74.19}, {"rank": 18, "day": "Day 1 (19 July 2026)", "reg": "SG250140532", "roll": "1040300116", "marks": 31.1, "pctl": 72.58}, {"rank": 19, "day": "Day 1 (19 July 2026)", "reg": "SG250131394", "roll": "1010300023", "marks": 31.02, "pctl": 70.97}, {"rank": 20, "day": "Day 1 (19 July 2026)", "reg": "SG250069253", "roll": "1010300016", "marks": 30.83, "pctl": 69.35}, {"rank": 21, "day": "Day 1 (19 July 2026)", "reg": "SG250023149", "roll": "1040300095", "marks": 29.83, "pctl": 67.74}, {"rank": 22, "day": "Day 1 (19 July 2026)", "reg": "SG250066716", "roll": "1020300045", "marks": 29.4, "pctl": 66.13}, {"rank": 23, "day": "Day 1 (19 July 2026)", "reg": "SG250074603", "roll": "1010300018", "marks": 28.11, "pctl": 64.52}, {"rank": 24, "day": "Day 1 (19 July 2026)", "reg": "SG250056711", "roll": "1030300082", "marks": 28.1, "pctl": 62.9}, {"rank": 25, "day": "Day 1 (19 July 2026)", "reg": "SG250124745", "roll": "1020300061", "marks": 27.76, "pctl": 61.29}, {"rank": 26, "day": "Day 1 (19 July 2026)", "reg": "SG250076563", "roll": "1020300052", "marks": 27.49, "pctl": 59.68}, {"rank": 27, "day": "Day 1 (19 July 2026)", "reg": "SG250121913", "roll": "1010300022", "marks": 27.47, "pctl": 58.06}, {"rank": 28, "day": "Day 1 (19 July 2026)", "reg": "SG250007875", "roll": "1030300073", "marks": 26.78, "pctl": 56.45}, {"rank": 29, "day": "Day 1 (19 July 2026)", "reg": "SG250090232", "roll": "1030300084", "marks": 26.16, "pctl": 54.84}, {"rank": 30, "day": "Day 1 (19 July 2026)", "reg": "SG250020982", "roll": "1020300032", "marks": 26.14, "pctl": 53.23}, {"rank": 31, "day": "Day 1 (19 July 2026)", "reg": "SG250044781", "roll": "1050300123", "marks": 25.47, "pctl": 51.61}, {"rank": 32, "day": "Day 1 (19 July 2026)", "reg": "SG250134171", "roll": "1040300114", "marks": 24.73, "pctl": 50.0}, {"rank": 33, "day": "Day 1 (19 July 2026)", "reg": "SG250059626", "roll": "1020300044", "marks": 23.16, "pctl": 48.39}, {"rank": 34, "day": "Day 1 (19 July 2026)", "reg": "SG250095687", "roll": "1020300055", "marks": 23.11, "pctl": 46.77}, {"rank": 35, "day": "Day 1 (19 July 2026)", "reg": "SG250118410", "roll": "1050300130", "marks": 22.83, "pctl": 45.16}, {"rank": 36, "day": "Day 1 (19 July 2026)", "reg": "SG250041926", "roll": "1030300078", "marks": 22.52, "pctl": 43.55}, {"rank": 37, "day": "Day 1 (19 July 2026)", "reg": "SG250083885", "roll": "1050300127", "marks": 22.19, "pctl": 41.94}, {"rank": 38, "day": "Day 1 (19 July 2026)", "reg": "SG250085454", "roll": "1050300128", "marks": 22.12, "pctl": 40.32}, {"rank": 39, "day": "Day 1 (19 July 2026)", "reg": "SG250022083", "roll": "1020300033", "marks": 22.07, "pctl": 38.71}, {"rank": 40, "day": "Day 1 (19 July 2026)", "reg": "SG250044890", "roll": "1020300038", "marks": 21.44, "pctl": 37.1}, {"rank": 41, "day": "Day 1 (19 July 2026)", "reg": "SG250077995", "roll": "1050300126", "marks": 21.09, "pctl": 35.48}, {"rank": 42, "day": "Day 1 (19 July 2026)", "reg": "SG250131199", "roll": "1020300064", "marks": 20.78, "pctl": 33.87}, {"rank": 43, "day": "Day 1 (19 July 2026)", "reg": "SG250004718", "roll": "1040300090", "marks": 20.35, "pctl": 32.26}, {"rank": 44, "day": "Day 1 (19 July 2026)", "reg": "SG250051871", "roll": "1030300080", "marks": 19.52, "pctl": 30.65}, {"rank": 45, "day": "Day 1 (19 July 2026)", "reg": "SG250106075", "roll": "1040300107", "marks": 19.36, "pctl": 29.03}, {"rank": 46, "day": "Day 1 (19 July 2026)", "reg": "SG250050403", "roll": "1010300013", "marks": 18.45, "pctl": 27.42}, {"rank": 47, "day": "Day 1 (19 July 2026)", "reg": "SG250067238", "roll": "1020300046", "marks": 16.54, "pctl": 25.81}, {"rank": 48, "day": "Day 1 (19 July 2026)", "reg": "SG250082816", "roll": "1040300102", "marks": 16.42, "pctl": 24.19}, {"rank": 49, "day": "Day 1 (19 July 2026)", "reg": "SG250092211", "roll": "1040300105", "marks": 16.19, "pctl": 22.58}, {"rank": 50, "day": "Day 1 (19 July 2026)", "reg": "SG250120174", "roll": "1030300086", "marks": 15.85, "pctl": 20.97}, {"rank": 51, "day": "Day 1 (19 July 2026)", "reg": "SG250145704", "roll": "1010300025", "marks": 15.77, "pctl": 19.35}, {"rank": 52, "day": "Day 1 (19 July 2026)", "reg": "SG250135880", "roll": "1020300065", "marks": 15.54, "pctl": 17.74}, {"rank": 53, "day": "Day 1 (19 July 2026)", "reg": "SG250050684", "roll": "1050300124", "marks": 15.15, "pctl": 16.13}, {"rank": 54, "day": "Day 1 (19 July 2026)", "reg": "SG250070580", "roll": "1020300049", "marks": 12.42, "pctl": 14.52}, {"rank": 55, "day": "Day 1 (19 July 2026)", "reg": "SG250003906", "roll": "1020300027", "marks": 11.54, "pctl": 12.9}, {"rank": 56, "day": "Day 1 (19 July 2026)", "reg": "SG250007036", "roll": "1020300028", "marks": 10.8, "pctl": 11.29}, {"rank": 57, "day": "Day 1 (19 July 2026)", "reg": "SG250029420", "roll": "1020300036", "marks": 10.55, "pctl": 9.68}, {"rank": 58, "day": "Day 1 (19 July 2026)", "reg": "SG250148597", "roll": "1010300026", "marks": 5.47, "pctl": 8.06}, {"rank": 59, "day": "Day 1 (19 July 2026)", "reg": "SG250013760", "roll": "1010300001", "marks": 5.19, "pctl": 6.45}, {"rank": 60, "day": "Day 1 (19 July 2026)", "reg": "SG250056515", "roll": "1030300081", "marks": 4.87, "pctl": 4.84}, {"rank": 61, "day": "Day 1 (19 July 2026)", "reg": "SG250116510", "roll": "1040300109", "marks": 4.86, "pctl": 3.23}, {"rank": 62, "day": "Day 1 (19 July 2026)", "reg": "SG250032956", "roll": "1040300097", "marks": 4.24, "pctl": 1.61}];
+let currentPage = 1;
+const stats = {"name": "Technical Officer (CWS Biomedical)", "total": 62, "highest": 80.68, "lowest": 4.24, "average": 25.55, "median": 25.1, "std_dev": 12.69, "positive": 62, "negative": 0, "cutoffs": {"Top 1%": 4.24, "Top 5%": 5.19, "Top 10%": 10.8, "Top 20%": 15.85, "Top 25%": 16.54, "Top 30%": 19.52, "Top 40%": 22.12, "Top 50%": 24.73, "Top 60%": 27.76, "Top 70%": 31.02, "Top 75%": 31.79, "Top 80%": 33.8, "Top 90%": 37.76, "Top 95%": 45.47, "Top 99%": 80.68}, "advt": "I/08/3/Rectt/2025-26", "vac_total": 1, "sc": 1, "st": 0, "obc": 0, "ews": 0, "ur": 0, "level": "Level-6", "group": "C"};
+const cutoffs = {"Top 1%": 4.24, "Top 5%": 5.19, "Top 10%": 10.8, "Top 20%": 15.85, "Top 25%": 16.54, "Top 30%": 19.52, "Top 40%": 22.12, "Top 50%": 24.73, "Top 60%": 27.76, "Top 70%": 31.02, "Top 75%": 31.79, "Top 80%": 33.8, "Top 90%": 37.76, "Top 95%": 45.47, "Top 99%": 80.68};
+
+function loadData() {
+renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
+renderTopChart(); renderCutoffChart(); renderCutoffTable();
+renderTop100(); renderTable(1);
+}
+
+function renderVacancy() {
+const v = stats;
+if (!v.advt) return;
+document.getElementById('vacancyBox').innerHTML = `
+<span class="vac-advt"><strong>Advt:</strong> ${v.advt}</span>
+<span class="vac-tag">${v.level} / Group ${v.group}</span>
+<span class="vac-tag">Total Vacancies: ${v.vac_total}</span>
+<span class="vac-cat"><span>SC ${v.sc}</span><span>ST ${v.st}</span><span>OBC ${v.obc}</span><span>EWS ${v.ews}</span><span>UR ${v.ur}</span></span>
+`;
+}
+
+function renderStats() {
+document.getElementById('statsGrid').innerHTML = `
+<div class="stat-card"><div class="label">Total Candidates</div><div class="value">${stats.total}</div></div>
+<div class="stat-card"><div class="label">Highest Marks</div><div class="value green">${stats.highest}</div></div>
+<div class="stat-card"><div class="label">Lowest Marks</div><div class="value red">${stats.lowest}</div></div>
+<div class="stat-card"><div class="label">Average Marks</div><div class="value">${stats.average}</div></div>
+<div class="stat-card"><div class="label">Median Marks</div><div class="value">${stats.median}</div></div>
+<div class="stat-card"><div class="label">Std Deviation</div><div class="value">${stats.std_dev}</div></div>
+<div class="stat-card"><div class="label">Positive Scores</div><div class="value green">${stats.positive}</div></div>
+<div class="stat-card"><div class="label">Negative Scores</div><div class="value red">${stats.negative}</div></div>
+`;
+}
+
+function renderDistChart() {
+const marks = allData.map(d => d.marks);
+const mn = Math.floor(Math.min(...marks));
+const mx = Math.ceil(Math.max(...marks));
+const binSize = 5;
+const bins = [];
+for (let s = mn; s <= mx; s += binSize) bins.push({ label: `${s}-${s+binSize}`, count: 0 });
+marks.forEach(m => {
+const idx = Math.min(bins.length - 1, Math.max(0, Math.floor((m - mn) / binSize)));
+bins[idx].count++;
+});
+new Chart(document.getElementById('distChart'), {
+type: 'bar',
+data: { labels: bins.map(b => b.label), datasets: [{ label: 'Candidates', data: bins.map(b => b.count), backgroundColor: 'rgba(26, 35, 126, 0.7)', borderColor: '#1a237e', borderWidth: 1 }] },
+options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Marks Range' } }, y: { title: { display: true, text: 'Candidates' }, beginAtZero: true } } }
+});
+}
+
+function renderPctlChart() {
+const sorted = [...allData].sort((a,b) => a.marks - b.marks);
+const pts = sorted.map((d,i) => ({ pctl: ((i+1)/sorted.length)*100, marks: d.marks }));
+new Chart(document.getElementById('pctlChart'), {
+type: 'line',
+data: { labels: pts.map(d => d.pctl.toFixed(0)), datasets: [{ label: 'Marks', data: pts.map(d => d.marks), borderColor: '#1a237e', backgroundColor: 'rgba(26,35,126,0.1)', fill: true, tension: 0.4, pointRadius: 0 }] },
+options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Percentile' } }, y: { title: { display: true, text: 'Marks' } } } }
+});
+}
+
+function renderTopChart() {
+const top = allData.slice(0, 20);
+new Chart(document.getElementById('topChart'), {
+type: 'bar',
+data: { labels: top.map(d => d.reg), datasets: [{ label: 'Marks', data: top.map(d => d.marks), backgroundColor: 'rgba(46, 125, 50, 0.7)', borderColor: '#2e7d32', borderWidth: 1 }] },
+options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Marks' }, beginAtZero: true }, y: { title: { display: true, text: 'Registration No' } } } }
+});
+}
+
+function renderCutoffChart() {
+const labels = Object.keys(cutoffs);
+const vals = Object.values(cutoffs);
+new Chart(document.getElementById('cutoffChart'), {
+type: 'bar',
+data: { labels, datasets: [{ label: 'Min Marks', data: vals, backgroundColor: 'rgba(198, 40, 40, 0.7)', borderColor: '#c62828', borderWidth: 1 }] },
+options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Category' } }, y: { title: { display: true, text: 'Marks' }, beginAtZero: true } } }
+});
+}
+
+function renderCutoffTable() {
+document.getElementById('cutoffTableBody').innerHTML = Object.entries(cutoffs).map(([k,v]) => `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`).join('');
+}
+
+function renderTop100() {
+document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+}
+
+function renderTable(page) {
+currentPage = page;
+const start = (page - 1) * PAGE_SIZE;
+const end = Math.min(start + PAGE_SIZE, allData.length);
+const tbody = document.getElementById('allBody');
+tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+renderPagination();
+}
+
+function renderPagination() {
+const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+const container = document.getElementById('pagination');
+let html = `<button onclick="renderTable(1)" ${currentPage===1?'disabled':''}>&laquo;</button>`;
+for (let p = Math.max(1, currentPage-3); p <= Math.min(totalPages, currentPage+3); p++) {
+html += `<button onclick="renderTable(${p})" class="${p===currentPage?'active':''}">${p}</button>`;
+}
+html += `<button onclick="renderTable(${totalPages})" ${currentPage===totalPages?'disabled':''}>&raquo;</button>`;
+container.innerHTML = html;
+}
+
+function filterTable() {
+const q = document.getElementById('searchInput').value.toLowerCase();
+const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll.includes(q)) : allData;
+const tbody = document.getElementById('allBody');
+if (q) {
+tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${d.rank}</span></td><td><span class="day-badge">${d.day||''}</span></td><td>${d.reg}</td><td>${d.roll}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}</td></tr>`).join('');
+document.getElementById('pagination').innerHTML = '';
+} else { renderTable(1); }
+}
+
+function searchCandidate() {
+const q = document.getElementById('candidateSearchInput').value.trim().toLowerCase();
+if (!q) return;
+const d = allData.find(x => x.reg.toLowerCase() === q || x.roll === q);
+const result = document.getElementById('searchResult');
+const body = document.getElementById('searchResultBody');
+const title = document.getElementById('searchResultTitle');
+const gauge = document.getElementById('rankGaugeFill');
+const midLabel = document.getElementById('gaugeMiddleLabel');
+if (!d) {
+title.textContent = 'Candidate Not Found';
+body.innerHTML = `<div class="search-stat" style="grid-column:1/-1;padding:30px;"><div class="label">No candidate found: "${q}"</div></div>`;
+gauge.style.width = '0%'; result.classList.add('show'); return;
+}
+const total = allData.length;
+const above = d.rank - 1;
+const below = total - d.rank;
+const pctPos = ((total - d.rank) / (total - 1)) * 100;
+title.textContent = `${d.reg} — ${d.roll} ${d.day ? '('+d.day+')' : ''}`;
+body.innerHTML = `
+<div class="search-stat"><div class="label">Rank</div><div class="value">#${d.rank} / ${total}</div></div>
+<div class="search-stat"><div class="label">Marks</div><div class="value ${d.marks >= 0 ? 'green' : 'red'}">${d.marks.toFixed(2)}</div></div>
+<div class="search-stat"><div class="label">Percentile</div><div class="value">${d.pctl.toFixed(2)}%</div></div>
+<div class="search-stat"><div class="label">Scored Above</div><div class="value green">${above}</div></div>
+<div class="search-stat"><div class="label">Scored Below</div><div class="value orange">${below}</div></div>
+<div class="search-stat"><div class="label">Top %</div><div class="value">${(above/total*100).toFixed(1)}%</div></div>
+`;
+gauge.style.width = `${Math.max(1, pctPos)}%`;
+midLabel.textContent = `You are here (${d.rank} of ${total})`;
+result.classList.add('show');
+result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function closeSearch() {
+document.getElementById('searchResult').classList.remove('show');
+document.getElementById('candidateSearchInput').value = '';
+}
+
+function switchTab(tab) {
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+document.querySelector(`.tab-btn[onclick*='${tab}']`).classList.add('active');
+document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+loadData();
+</script>
+</body>
+</html>
