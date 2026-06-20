@@ -101,74 +101,90 @@ def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_labe
 <title>{subj_name}{header_suffix} - Analysis</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
+:root {{ --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --bar-bg: #d0d4dc; --hover-bg: #f0f2f8; --input-bg: #fff; }}
+body.dark {{ --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --bar-bg: #333; --hover-bg: #2a2a35; --input-bg: #2a2a2a; }}
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; padding: 20px; }}
+body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: background 0.2s, color 0.2s; }}
 .container {{ max-width: 1400px; margin: 0 auto; }}
-h1 {{ text-align: center; margin-bottom: 4px; color: #1a237e; font-size: 26px; }}
-.subtitle {{ text-align: center; color: #666; margin-bottom: 20px; font-size: 13px; }}
-.back-link {{ display: inline-block; margin-bottom: 12px; color: #1a237e; text-decoration: none; font-size: 13px; font-weight: 600; }}
+.header-row {{ display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }}
+.header-row h1 {{ font-size: 26px; color: var(--accent); }}
+.subtitle {{ color: var(--text2); margin-bottom: 16px; font-size: 13px; }}
+.back-link {{ color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 8px; }}
 .back-link:hover {{ text-decoration: underline; }}
-.vacancy-box {{ background: white; border-radius: 10px; padding: 14px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 13px; }}
-.vacancy-box .vac-tag {{ background: #e8eaf6; color: #1a237e; padding: 3px 10px; border-radius: 12px; font-weight: 600; font-size: 11px; }}
-.vacancy-box .vac-advt {{ color: #555; }}
+.toggle {{ display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }}
+.toggle input {{ display: none; }}
+.toggle .slider {{ width: 38px; height: 20px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }}
+.toggle .slider::after {{ content: ''; position: absolute; width: 14px; height: 14px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }}
+.toggle input:checked + .slider {{ background: var(--accent); }}
+.toggle input:checked + .slider::after {{ left: 21px; }}
+.vacancy-box {{ background: var(--surface); padding: 12px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; }}
+.vacancy-box .vac-tag {{ background: var(--hover-bg); color: var(--accent); padding: 2px 8px; font-weight: 600; font-size: 11px; }}
+.vacancy-box .vac-advt {{ color: var(--text2); }}
 .vacancy-box .vac-cat {{ display: inline-flex; align-items: center; gap: 4px; }}
-.vacancy-box .vac-cat span {{ background: #f5f5ff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }}
-.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }}
-.stat-card {{ background: white; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }}
-.stat-card .label {{ font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }}
-.stat-card .value {{ font-size: 24px; font-weight: 700; margin-top: 4px; color: #1a237e; }}
+.vacancy-box .vac-cat span {{ background: var(--hover-bg); padding: 2px 6px; font-size: 11px; }}
+.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }}
+.stat-card {{ background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }}
+.stat-card .label {{ font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }}
+.stat-card .value {{ font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--accent); }}
 .stat-card .value.green {{ color: #2e7d32; }}
 .stat-card .value.red {{ color: #c62828; }}
-.search-section {{ background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }}
-.search-section input {{ flex: 1; min-width: 200px; padding: 9px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; }}
-.search-section input:focus {{ border-color: #1a237e; }}
-.search-section button {{ padding: 9px 22px; background: #1a237e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }}
-.search-section button:hover {{ background: #283593; }}
-.search-result {{ background: white; border-radius: 10px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; overflow: hidden; display: none; }}
+body.dark .stat-card .value.green {{ color: #66bb6a; }}
+body.dark .stat-card .value.red {{ color: #ef5350; }}
+.search-section {{ background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }}
+.search-section input {{ flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; outline: none; }}
+.search-section input:focus {{ border-color: var(--accent); }}
+.search-section button {{ padding: 8px 20px; background: var(--accent); color: var(--surface); border: none; cursor: pointer; font-size: 13px; font-weight: 600; }}
+.search-section button:hover {{ background: var(--accent2); }}
+.search-result {{ background: var(--surface); border: 1px solid var(--border); margin-bottom: 14px; display: none; }}
 .search-result.show {{ display: block; }}
-.search-result-header {{ background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }}
-.search-result-header h2 {{ font-size: 16px; }}
-.search-result-header .close-btn {{ background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; }}
-.search-result-body {{ padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }}
-.search-stat {{ text-align: center; padding: 10px; background: #f5f5ff; border-radius: 8px; }}
-.search-stat .label {{ font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }}
-.search-stat .value {{ font-size: 20px; font-weight: 700; margin-top: 4px; color: #1a237e; }}
+.search-result-header {{ background: var(--accent); color: var(--surface); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }}
+.search-result-header h2 {{ font-size: 15px; }}
+.search-result-header .close-btn {{ background: rgba(255,255,255,0.2); border: none; color: var(--surface); width: 26px; height: 26px; cursor: pointer; font-size: 16px; line-height: 1; }}
+.search-result-body {{ padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }}
+.search-stat {{ text-align: center; padding: 10px; background: var(--hover-bg); }}
+.search-stat .label {{ font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }}
+.search-stat .value {{ font-size: 18px; font-weight: 700; margin-top: 4px; color: var(--accent); }}
 .search-stat .value.green {{ color: #2e7d32; }}
 .search-stat .value.red {{ color: #c62828; }}
 .search-stat .value.orange {{ color: #e65100; }}
-.rank-gauge-wrap {{ padding: 0 20px 16px; }}
-.rank-gauge {{ height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }}
-.rank-gauge-fill {{ height: 100%; background: linear-gradient(90deg, #c62828, #e65100, #f9a825, #2e7d32); border-radius: 4px; transition: width 0.6s ease; }}
-.rank-gauge-label {{ display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-top: 3px; }}
-.tabs {{ display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }}
-.tab-btn {{ padding: 7px 18px; border: none; background: #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }}
-.tab-btn.active {{ background: #1a237e; color: white; }}
+body.dark .search-stat .value.green {{ color: #66bb6a; }}
+body.dark .search-stat .value.red {{ color: #ef5350; }}
+body.dark .search-stat .value.orange {{ color: #ffb74d; }}
+.rank-gauge-wrap {{ padding: 0 16px 14px; }}
+.rank-gauge {{ height: 6px; background: var(--bar-bg); }}
+.rank-gauge-fill {{ height: 100%; background: linear-gradient(90deg, #c62828, #e65100, #f9a825, #2e7d32); transition: width 0.6s ease; }}
+.rank-gauge-label {{ display: flex; justify-content: space-between; font-size: 10px; color: var(--text2); margin-top: 2px; }}
+.tabs {{ display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }}
+.tab-btn {{ padding: 6px 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 600; }}
+.tab-btn.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
-.charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }}
-.chart-box {{ background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }}
+.charts-row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }}
+.chart-box {{ background: var(--surface); padding: 14px; border: 1px solid var(--border); }}
 .chart-box.full {{ grid-column: 1 / -1; }}
-.chart-box h3 {{ font-size: 14px; margin-bottom: 10px; color: #333; }}
-canvas {{ max-height: 300px; }}
-.table-wrap {{ background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto; margin-bottom: 16px; }}
-.table-wrap h3 {{ font-size: 14px; margin-bottom: 10px; }}
+.chart-box h3 {{ font-size: 13px; margin-bottom: 8px; color: var(--text); }}
+canvas {{ max-height: 280px; }}
+.table-wrap {{ background: var(--surface); padding: 14px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 14px; }}
+.table-wrap h3 {{ font-size: 13px; margin-bottom: 8px; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
-th {{ background: #1a237e; color: white; padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; }}
-td {{ padding: 6px 10px; border-bottom: 1px solid #eee; }}
-tr:hover td {{ background: #f5f5ff; }}
-.rank-badge {{ background: #1a237e; color: white; border-radius: 4px; padding: 1px 6px; font-size: 11px; font-weight: 600; }}
-.day-badge {{ background: #e8eaf6; color: #1a237e; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; }}
-.pagination {{ display: flex; justify-content: center; gap: 4px; margin-top: 12px; flex-wrap: wrap; }}
-.pagination button {{ padding: 5px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 12px; }}
-.pagination button.active {{ background: #1a237e; color: white; border-color: #1a237e; }}
-.pagination button:hover:not(.active) {{ background: #e8eaf6; }}
+th {{ background: var(--accent); color: var(--surface); padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }}
+td {{ padding: 5px 8px; border-bottom: 1px solid var(--border); }}
+tr:hover td {{ background: var(--hover-bg); }}
+.rank-badge {{ background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }}
+.day-badge {{ background: var(--hover-bg); color: var(--accent); padding: 1px 6px; font-size: 10px; font-weight: 600; }}
+.pagination {{ display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }}
+.pagination button {{ padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }}
+.pagination button.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
+.pagination button:hover:not(.active) {{ background: var(--hover-bg); }}
 @media (max-width: 900px) {{ .charts-row {{ grid-template-columns: 1fr; }} }}
 </style>
 </head>
 <body>
 <div class="container">
-<a class="back-link" href="{back_link}">&larr; Back to All Positions</a>
-<h1>{subj_name}{header_suffix}</h1>
+<div class="header-row">
+<div><a class="back-link" href="{back_link}">&larr; Back to All Positions</a><h1>{subj_name}{header_suffix}</h1></div>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
 <p class="subtitle">SGPGIMS Raw Score Analysis</p>
 
 <div class="vacancy-box" id="vacancyBox"></div>
@@ -403,6 +419,11 @@ document.getElementById(`tab-${{tab}}`).classList.add('active');
 }}
 
 loadData();
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => {{ document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); }};
+if (t.checked) document.body.classList.add('dark');
 </script>
 </body>
 </html>"""
@@ -411,78 +432,71 @@ loadData();
         f.write(html)
 
 def gen_index(all_positions):
-    # Merge positions from exam data and vacancy data
     all_pos_names = set(all_positions.keys()) | set(VACANCIES.keys())
     position_days = {}
-
     for pos_name in all_pos_names:
         records = all_positions.get(pos_name, [])
         days = sorted(set(r["Day"] for r in records))
         exams = sorted(set(r["Exam_Date"] for r in records))
         safe_name = safe(pos_name)
-        position_days[pos_name] = {
-            "total": len(records),
-            "days": days,
-            "exams": exams,
-            "safe": safe_name
-        }
+        position_days[pos_name] = {"total": len(records), "days": days, "exams": exams, "safe": safe_name}
 
     total_all = sum(pd["total"] for pd in position_days.values())
     all_totals = [pd["total"] for pd in position_days.values()]
     max_total = max(all_totals) if all_totals else 1
 
-    # Sort: positions with exam data first (by count), then vacancy-only
     def sort_key(item):
         pos_name, info = item
-        has_exam = info["total"] > 0
-        return (0 if has_exam else 1, -info["total"])
+        return (0 if info["total"] > 0 else 1, -info["total"])
 
     cards = ""
     for pos_name, info in sorted(position_days.items(), key=sort_key):
         safe_name = info["safe"]
-        day_badges = "".join(f'<span class="day-pill">{d}</span>' for d in info["days"])
+        days_html = "".join(f'<span class="day-pill">{d}</span>' for d in info["days"])
         vac = VACANCIES.get(pos_name, {})
-
-        links = ""
-        if info["total"] > 0 and len(info["days"]) > 1:
-            links = f'<div class="links"><a href="analysis/combined/{safe_name}_analysis.html">Combined ({info["total"]})</a>'
-            for d in info["days"]:
-                ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
-                dc = sum(1 for r in all_positions[pos_name] if r["Day"] == d)
-                links += f'<a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{d} ({dc})</a>'
-            links += "</div>"
-        if info["total"] > 0 and len(info["days"]) == 1:
-            d = list(info["days"])[0]
-            ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
-            links = f'<div class="links"><a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{info["total"]} candidates</a></div>'
-        if info["total"] == 0:
-            links = '<div class="links" style="color:#999;font-size:12px;">No exam data yet</div>'
-
         total = info["total"]
         records = all_positions.get(pos_name, [])
+
         if total > 0:
+            if len(info["days"]) > 1:
+                card_link = f"analysis/combined/{safe_name}_analysis.html"
+            else:
+                d = list(info["days"])[0]
+                ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
+                card_link = f"analysis/per_day/{safe_name}_{ds}_analysis.html"
             marks_list = [r["Marks"] for r in records]
             avg = sum(marks_list) / total
             highest = max(marks_list)
             median = sorted(marks_list)[total // 2]
-            count_str = f"{total} candidates &middot; Avg: {avg:.2f} &middot; Highest: {highest:.2f} &middot; Median: {median:.2f}"
+            stat_line = f'<span class="stat">{total} candidates</span><span class="stat-sep">|</span><span class="stat">Avg {avg:.2f}</span><span class="stat-sep">|</span><span class="stat">Highest {highest:.2f}</span><span class="stat-sep">|</span><span class="stat">Median {median:.2f}</span>'
         else:
-            count_str = "No exam data"
-        width_pct = total / max_total * 100 if max_total else 0
+            card_link = ""
+            stat_line = '<span class="stat">No exam data</span>'
+
+        day_links = ""
+        if total > 0 and len(info["days"]) > 1:
+            for d in info["days"]:
+                ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
+                dc = sum(1 for r in all_positions[pos_name] if r["Day"] == d)
+                day_links += f'<a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{d}</a>'
 
         vac_line = ""
         if vac:
-            vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Group {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} (SC {vac["sc"]} ST {vac["st"]} OBC {vac["obc"]} EWS {vac["ews"]} UR {vac["ur"]})</span></div>'
+            cats = f'SC {vac["sc"]} ST {vac["st"]} OBC {vac["obc"]} EWS {vac["ews"]} UR {vac["ur"]}'
+            vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span></div>'
+
+        width_pct = total / max_total * 100 if max_total else 0
+        card_tag = "a" if card_link else "div"
+        extra_attr = f'href="{card_link}"' if card_link else ""
 
         cards += f"""
-        <div class="pos-card">
+        <{card_tag} class="pos-card" {extra_attr}>
             <div class="pos-name">{pos_name}</div>
-            <div class="pos-count">{count_str}</div>
+            <div class="pos-stats">{stat_line}</div>
             {vac_line}
-            <div class="day-pills">{day_badges}</div>
-            {links}
+            <div class="pos-meta"><div class="day-pills">{days_html}</div>{'<div class="day-links">'+day_links+'</div>' if day_links else ''}</div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:{width_pct}%"></div></div>
-        </div>"""
+        </{card_tag}>"""
 
     total_exams = sorted(set(e for pd in position_days.values() for e in pd["exams"]))
 
@@ -491,39 +505,63 @@ def gen_index(all_positions):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGPGIMS Results - All Positions</title>
+<title>SGPGIMS Exam Results</title>
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; padding: 30px; }}
-.container {{ max-width: 960px; margin: 0 auto; }}
-h1 {{ text-align: center; color: #1a237e; font-size: 28px; }}
-.subtitle {{ text-align: center; color: #666; margin-bottom: 6px; font-size: 14px; }}
-.exam-list {{ text-align: center; margin-bottom: 24px; font-size: 13px; color: #555; }}
-.exam-list strong {{ color: #1a237e; }}
-.pos-card {{ background: white; border-radius: 12px; padding: 18px 24px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }}
-.pos-name {{ font-size: 20px; font-weight: 700; color: #1a237e; }}
-.pos-count {{ font-size: 13px; color: #666; margin-top: 4px; }}
-.vac-line {{ margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }}
-.vac-pill {{ background: #fff3e0; color: #e65100; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px; }}
-.day-pills {{ margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }}
-.day-pill {{ background: #e8eaf6; color: #1a237e; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }}
-.links {{ margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }}
-.links a {{ padding: 5px 14px; background: #1a237e; color: white; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 600; transition: background 0.15s; }}
-.links a:hover {{ background: #283593; }}
-.pos-bar {{ height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden; }}
-.pos-bar-fill {{ height: 100%; background: linear-gradient(90deg, #1a237e, #5c6bc0); border-radius: 2px; }}
-.total-badge {{ text-align: center; margin-bottom: 20px; font-size: 15px; color: #555; }}
-.total-badge strong {{ color: #1a237e; }}
+:root {{ --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --bar-bg: #d0d4dc; --pill-bg: #eef0f6; --pill-text: #1a237e; --vac-bg: #fff3e0; --vac-text: #e65100; }}
+body.dark {{ --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --bar-bg: #333; --pill-bg: #2a2a3a; --pill-text: #7c8cdb; --vac-bg: #2a2010; --vac-text: #ffb74d; }}
+body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 24px; transition: background 0.2s, color 0.2s; }}
+.container {{ max-width: 1200px; margin: 0 auto; }}
+.header {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }}
+h1 {{ font-size: 26px; color: var(--accent); }}
+.toggle {{ display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }}
+.toggle input {{ display: none; }}
+.toggle .slider {{ width: 40px; height: 22px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }}
+.toggle .slider::after {{ content: ''; position: absolute; width: 16px; height: 16px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }}
+.toggle input:checked + .slider {{ background: var(--accent); }}
+.toggle input:checked + .slider::after {{ left: 21px; }}
+.subtitle {{ color: var(--text2); margin-bottom: 4px; font-size: 14px; }}
+.exam-list {{ color: var(--text2); margin-bottom: 20px; font-size: 13px; }}
+.exam-list strong {{ color: var(--accent); }}
+.grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }}
+.pos-card {{ display: block; background: var(--surface); padding: 18px 20px; text-decoration: none; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: box-shadow 0.15s, transform 0.15s; border: 1px solid var(--border); }}
+.pos-card:hover {{ box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }}
+.pos-name {{ font-size: 18px; font-weight: 700; color: var(--accent); }}
+.pos-stats {{ font-size: 12px; color: var(--text2); margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }}
+.stat-sep {{ color: var(--border); }}
+.vac-line {{ margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }}
+.vac-pill {{ background: var(--vac-bg); color: var(--vac-text); font-size: 10px; font-weight: 600; padding: 2px 8px; }}
+.pos-meta {{ margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }}
+.day-pills {{ display: flex; gap: 4px; flex-wrap: wrap; }}
+.day-pill {{ background: var(--pill-bg); color: var(--pill-text); font-size: 10px; font-weight: 600; padding: 2px 8px; }}
+.day-links {{ display: flex; gap: 4px; flex-wrap: wrap; }}
+.day-links a {{ padding: 2px 10px; background: var(--accent); color: var(--surface); text-decoration: none; font-size: 11px; font-weight: 600; transition: background 0.15s; }}
+.day-links a:hover {{ background: var(--accent2); }}
+.pos-bar {{ height: 3px; background: var(--bar-bg); margin-top: 12px; }}
+.pos-bar-fill {{ height: 100%; background: var(--accent); }}
+.total-badge {{ text-align: center; margin-bottom: 18px; font-size: 14px; color: var(--text2); }}
+.total-badge strong {{ color: var(--accent); }}
+@media (max-width: 720px) {{ .grid {{ grid-template-columns: 1fr; }} body {{ padding: 16px; }} h1 {{ font-size: 22px; }} }}
 </style>
 </head>
 <body>
 <div class="container">
+<div class="header">
 <h1>SGPGIMS Exam Results</h1>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
 <p class="subtitle">Raw Score Analysis &mdash; Advt I/08/1-12/Rectt/2025-26</p>
 <div class="exam-list">Exams: <strong>{', '.join(total_exams)}</strong></div>
 <div class="total-badge">Total Candidates: <strong>{total_all}</strong> across {len(position_days)} positions</div>
-{cards}
+<div class="grid">{cards}</div>
 </div>
+<script>
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => {{ document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); }};
+if (t.checked) document.body.classList.add('dark');
+</script>
 </body>
 </html>"""
     html_path = out_dir / "index.html"

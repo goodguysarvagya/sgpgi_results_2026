@@ -3,134 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGPGIMS Results - All Positions</title>
+<title>SGPGIMS Exam Results</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; padding: 30px; }
-.container { max-width: 960px; margin: 0 auto; }
-h1 { text-align: center; color: #1a237e; font-size: 28px; }
-.subtitle { text-align: center; color: #666; margin-bottom: 6px; font-size: 14px; }
-.exam-list { text-align: center; margin-bottom: 24px; font-size: 13px; color: #555; }
-.exam-list strong { color: #1a237e; }
-.pos-card { background: white; border-radius: 12px; padding: 18px 24px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-.pos-name { font-size: 20px; font-weight: 700; color: #1a237e; }
-.pos-count { font-size: 13px; color: #666; margin-top: 4px; }
-.vac-line { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
-.vac-pill { background: #fff3e0; color: #e65100; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
-.day-pills { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
-.day-pill { background: #e8eaf6; color: #1a237e; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
-.links { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
-.links a { padding: 5px 14px; background: #1a237e; color: white; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 600; transition: background 0.15s; }
-.links a:hover { background: #283593; }
-.pos-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden; }
-.pos-bar-fill { height: 100%; background: linear-gradient(90deg, #1a237e, #5c6bc0); border-radius: 2px; }
-.total-badge { text-align: center; margin-bottom: 20px; font-size: 15px; color: #555; }
-.total-badge strong { color: #1a237e; }
+:root { --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --bar-bg: #d0d4dc; --pill-bg: #eef0f6; --pill-text: #1a237e; --vac-bg: #fff3e0; --vac-text: #e65100; }
+body.dark { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --bar-bg: #333; --pill-bg: #2a2a3a; --pill-text: #7c8cdb; --vac-bg: #2a2010; --vac-text: #ffb74d; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 24px; transition: background 0.2s, color 0.2s; }
+.container { max-width: 1200px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
+h1 { font-size: 26px; color: var(--accent); }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }
+.toggle input { display: none; }
+.toggle .slider { width: 40px; height: 22px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }
+.toggle .slider::after { content: ''; position: absolute; width: 16px; height: 16px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider::after { left: 21px; }
+.subtitle { color: var(--text2); margin-bottom: 4px; font-size: 14px; }
+.exam-list { color: var(--text2); margin-bottom: 20px; font-size: 13px; }
+.exam-list strong { color: var(--accent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.pos-card { display: block; background: var(--surface); padding: 18px 20px; text-decoration: none; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: box-shadow 0.15s, transform 0.15s; border: 1px solid var(--border); }
+.pos-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.pos-name { font-size: 18px; font-weight: 700; color: var(--accent); }
+.pos-stats { font-size: 12px; color: var(--text2); margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.stat-sep { color: var(--border); }
+.vac-line { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+.vac-pill { background: var(--vac-bg); color: var(--vac-text); font-size: 10px; font-weight: 600; padding: 2px 8px; }
+.pos-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.day-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.day-pill { background: var(--pill-bg); color: var(--pill-text); font-size: 10px; font-weight: 600; padding: 2px 8px; }
+.day-links { display: flex; gap: 4px; flex-wrap: wrap; }
+.day-links a { padding: 2px 10px; background: var(--accent); color: var(--surface); text-decoration: none; font-size: 11px; font-weight: 600; transition: background 0.15s; }
+.day-links a:hover { background: var(--accent2); }
+.pos-bar { height: 3px; background: var(--bar-bg); margin-top: 12px; }
+.pos-bar-fill { height: 100%; background: var(--accent); }
+.total-badge { text-align: center; margin-bottom: 18px; font-size: 14px; color: var(--text2); }
+.total-badge strong { color: var(--accent); }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } h1 { font-size: 22px; } }
 </style>
 </head>
 <body>
 <div class="container">
+<div class="header">
 <h1>SGPGIMS Exam Results</h1>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
 <p class="subtitle">Raw Score Analysis &mdash; Advt I/08/1-12/Rectt/2025-26</p>
 <div class="exam-list">Exams: <strong>19 July 2026, 20 June 2026</strong></div>
 <div class="total-badge">Total Candidates: <strong>5517</strong> across 12 positions</div>
-
-        <div class="pos-card">
+<div class="grid">
+        <a class="pos-card" href="analysis/per_day/Stenographer_day_2_20_june_2026_analysis.html">
             <div class="pos-name">Stenographer</div>
-            <div class="pos-count">2755 candidates &middot; Avg: 34.51 &middot; Highest: 77.72 &middot; Median: 34.41</div>
-            <div class="vac-line"><span class="vac-pill">Level-4 / Group C</span><span class="vac-pill">I/08/8/Rectt/2025-26</span><span class="vac-pill">Vacancies: 64 (SC 13 ST 1 OBC 18 EWS 6 UR 26)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Stenographer_day_2_20_june_2026_analysis.html">2755 candidates</a></div>
+            <div class="pos-stats"><span class="stat">2755 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 34.51</span><span class="stat-sep">|</span><span class="stat">Highest 77.72</span><span class="stat-sep">|</span><span class="stat">Median 34.41</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-4 / Gr C</span><span class="vac-pill">I/08/8/Rectt/2025-26</span><span class="vac-pill">Vacancies: 64 (SC 13 ST 1 OBC 18 EWS 6 UR 26)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:100.0%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Senior_Administrative_Assistant_day_2_20_june_2026_analysis.html">
             <div class="pos-name">Senior Administrative Assistant</div>
-            <div class="pos-count">1526 candidates &middot; Avg: 35.88 &middot; Highest: 92.68 &middot; Median: 35.77</div>
-            <div class="vac-line"><span class="vac-pill">Level-4 / Group C</span><span class="vac-pill">I/08/7/Rectt/2025-26</span><span class="vac-pill">Vacancies: 32 (SC 7 ST 1 OBC 8 EWS 3 UR 13)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Senior_Administrative_Assistant_day_2_20_june_2026_analysis.html">1526 candidates</a></div>
+            <div class="pos-stats"><span class="stat">1526 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 35.88</span><span class="stat-sep">|</span><span class="stat">Highest 92.68</span><span class="stat-sep">|</span><span class="stat">Median 35.77</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-4 / Gr C</span><span class="vac-pill">I/08/7/Rectt/2025-26</span><span class="vac-pill">Vacancies: 32 (SC 7 ST 1 OBC 8 EWS 3 UR 13)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:55.3901996370236%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Store_Keeper_day_1_19_july_2026_analysis.html">
             <div class="pos-name">Store Keeper</div>
-            <div class="pos-count">361 candidates &middot; Avg: 31.03 &middot; Highest: 83.36 &middot; Median: 28.81</div>
-            <div class="vac-line"><span class="vac-pill">Level-6 / Group C</span><span class="vac-pill">I/08/5/Rectt/2025-26</span><span class="vac-pill">Vacancies: 22 (SC 5 ST 0 OBC 6 EWS 2 UR 9)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Store_Keeper_day_1_19_july_2026_analysis.html">361 candidates</a></div>
+            <div class="pos-stats"><span class="stat">361 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 31.03</span><span class="stat-sep">|</span><span class="stat">Highest 83.36</span><span class="stat-sep">|</span><span class="stat">Median 28.81</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-6 / Gr C</span><span class="vac-pill">I/08/5/Rectt/2025-26</span><span class="vac-pill">Vacancies: 22 (SC 5 ST 0 OBC 6 EWS 2 UR 9)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:13.10344827586207%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/OT_Assistant_day_2_20_june_2026_analysis.html">
             <div class="pos-name">O.T. Assistant</div>
-            <div class="pos-count">357 candidates &middot; Avg: 25.54 &middot; Highest: 79.70 &middot; Median: 25.52</div>
-            <div class="vac-line"><span class="vac-pill">Level-5 / Group C</span><span class="vac-pill">I/08/12/Rectt/2025-26</span><span class="vac-pill">Vacancies: 81 (SC 21 ST 2 OBC 30 EWS 0 UR 28)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/OT_Assistant_day_2_20_june_2026_analysis.html">357 candidates</a></div>
+            <div class="pos-stats"><span class="stat">357 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 25.54</span><span class="stat-sep">|</span><span class="stat">Highest 79.70</span><span class="stat-sep">|</span><span class="stat">Median 25.52</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-5 / Gr C</span><span class="vac-pill">I/08/12/Rectt/2025-26</span><span class="vac-pill">Vacancies: 81 (SC 21 ST 2 OBC 30 EWS 0 UR 28)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:12.958257713248639%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Medical_Social_Service_Officer_Gr-II_day_2_20_june_2026_analysis.html">
             <div class="pos-name">Medical Social Service Officer Gr-II</div>
-            <div class="pos-count">204 candidates &middot; Avg: 36.18 &middot; Highest: 87.34 &middot; Median: 36.44</div>
-            <div class="vac-line"><span class="vac-pill">Level-6 / Group C</span><span class="vac-pill">I/08/6/Rectt/2025-26</span><span class="vac-pill">Vacancies: 2 (SC 0 ST 0 OBC 0 EWS 0 UR 2)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Medical_Social_Service_Officer_Gr-II_day_2_20_june_2026_analysis.html">204 candidates</a></div>
+            <div class="pos-stats"><span class="stat">204 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 36.18</span><span class="stat-sep">|</span><span class="stat">Highest 87.34</span><span class="stat-sep">|</span><span class="stat">Median 36.44</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-6 / Gr C</span><span class="vac-pill">I/08/6/Rectt/2025-26</span><span class="vac-pill">Vacancies: 2 (SC 0 ST 0 OBC 0 EWS 0 UR 2)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 2 (20 June 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:7.404718693284937%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Junior_Accounts_Officer_day_1_19_july_2026_analysis.html">
             <div class="pos-name">Junior Accounts Officer</div>
-            <div class="pos-count">185 candidates &middot; Avg: 34.23 &middot; Highest: 85.67 &middot; Median: 31.81</div>
-            <div class="vac-line"><span class="vac-pill">Level-6 / Group C</span><span class="vac-pill">I/08/2/Rectt/2025-26</span><span class="vac-pill">Vacancies: 6 (SC 2 ST 0 OBC 1 EWS 0 UR 3)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Junior_Accounts_Officer_day_1_19_july_2026_analysis.html">185 candidates</a></div>
+            <div class="pos-stats"><span class="stat">185 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 34.23</span><span class="stat-sep">|</span><span class="stat">Highest 85.67</span><span class="stat-sep">|</span><span class="stat">Median 31.81</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-6 / Gr C</span><span class="vac-pill">I/08/2/Rectt/2025-26</span><span class="vac-pill">Vacancies: 6 (SC 2 ST 0 OBC 1 EWS 0 UR 3)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:6.715063520871143%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Technical_Officer_CWS_Biomedical_day_1_19_july_2026_analysis.html">
             <div class="pos-name">Technical Officer (CWS Biomedical)</div>
-            <div class="pos-count">62 candidates &middot; Avg: 25.55 &middot; Highest: 80.68 &middot; Median: 25.47</div>
-            <div class="vac-line"><span class="vac-pill">Level-6 / Group C</span><span class="vac-pill">I/08/3/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1 (SC 1 ST 0 OBC 0 EWS 0 UR 0)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Technical_Officer_CWS_Biomedical_day_1_19_july_2026_analysis.html">62 candidates</a></div>
+            <div class="pos-stats"><span class="stat">62 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 25.55</span><span class="stat-sep">|</span><span class="stat">Highest 80.68</span><span class="stat-sep">|</span><span class="stat">Median 25.47</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-6 / Gr C</span><span class="vac-pill">I/08/3/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1 (SC 1 ST 0 OBC 0 EWS 0 UR 0)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:2.2504537205081667%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/CSSD_Assistant_day_1_19_july_2026_analysis.html">
             <div class="pos-name">CSSD Assistant</div>
-            <div class="pos-count">33 candidates &middot; Avg: 22.92 &middot; Highest: 85.01 &middot; Median: 17.48</div>
-            <div class="vac-line"><span class="vac-pill">Level-4 / Group C</span><span class="vac-pill">I/08/9/Rectt/2025-26</span><span class="vac-pill">Vacancies: 20 (SC 4 ST 0 OBC 6 EWS 2 UR 8)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/CSSD_Assistant_day_1_19_july_2026_analysis.html">33 candidates</a></div>
+            <div class="pos-stats"><span class="stat">33 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 22.92</span><span class="stat-sep">|</span><span class="stat">Highest 85.01</span><span class="stat-sep">|</span><span class="stat">Median 17.48</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-4 / Gr C</span><span class="vac-pill">I/08/9/Rectt/2025-26</span><span class="vac-pill">Vacancies: 20 (SC 4 ST 0 OBC 6 EWS 2 UR 8)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:1.1978221415607986%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Draftsman_day_1_19_july_2026_analysis.html">
             <div class="pos-name">Draftsman</div>
-            <div class="pos-count">18 candidates &middot; Avg: 23.45 &middot; Highest: 52.08 &middot; Median: 22.83</div>
-            <div class="vac-line"><span class="vac-pill">Level-4 / Group C</span><span class="vac-pill">I/08/10/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1 (SC 0 ST 0 OBC 0 EWS 0 UR 1)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Draftsman_day_1_19_july_2026_analysis.html">18 candidates</a></div>
+            <div class="pos-stats"><span class="stat">18 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 23.45</span><span class="stat-sep">|</span><span class="stat">Highest 52.08</span><span class="stat-sep">|</span><span class="stat">Median 22.83</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-4 / Gr C</span><span class="vac-pill">I/08/10/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1 (SC 0 ST 0 OBC 0 EWS 0 UR 1)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:0.6533575317604355%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <a class="pos-card" href="analysis/per_day/Nuclear_Medicine_Technologist_day_1_19_july_2026_analysis.html">
             <div class="pos-name">Nuclear Medicine Technologist</div>
-            <div class="pos-count">16 candidates &middot; Avg: 39.35 &middot; Highest: 65.37 &middot; Median: 45.03</div>
-            <div class="vac-line"><span class="vac-pill">Level-5 / Group C</span><span class="vac-pill">I/08/4/Rectt/2025-26</span><span class="vac-pill">Vacancies: 7 (SC 2 ST 0 OBC 2 EWS 0 UR 3)</span></div>
-            <div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div>
-            <div class="links"><a href="analysis/per_day/Nuclear_Medicine_Technologist_day_1_19_july_2026_analysis.html">16 candidates</a></div>
+            <div class="pos-stats"><span class="stat">16 candidates</span><span class="stat-sep">|</span><span class="stat">Avg 39.35</span><span class="stat-sep">|</span><span class="stat">Highest 65.37</span><span class="stat-sep">|</span><span class="stat">Median 45.03</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-5 / Gr C</span><span class="vac-pill">I/08/4/Rectt/2025-26</span><span class="vac-pill">Vacancies: 7 (SC 2 ST 0 OBC 2 EWS 0 UR 3)</span></div>
+            <div class="pos-meta"><div class="day-pills"><span class="day-pill">Day 1 (19 July 2026)</span></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:0.5807622504537204%"></div></div>
-        </div>
-        <div class="pos-card">
-            <div class="pos-name">Hospital Attendant Gr-II</div>
-            <div class="pos-count">No exam data</div>
-            <div class="vac-line"><span class="vac-pill">Level-1 / Group D</span><span class="vac-pill">I/08/11/Rectt/2025-26</span><span class="vac-pill">Vacancies: 43 (SC 9 ST 0 OBC 13 EWS 4 UR 17)</span></div>
-            <div class="day-pills"></div>
-            <div class="links" style="color:#999;font-size:12px;">No exam data yet</div>
-            <div class="pos-bar"><div class="pos-bar-fill" style="width:0.0%"></div></div>
-        </div>
-        <div class="pos-card">
+        </a>
+        <div class="pos-card" >
             <div class="pos-name">Nursing Officer</div>
-            <div class="pos-count">No exam data</div>
-            <div class="vac-line"><span class="vac-pill">Level-7 / Group B</span><span class="vac-pill">I/08/1/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1200 (SC 253 ST 24 OBC 324 EWS 119 UR 480)</span></div>
-            <div class="day-pills"></div>
-            <div class="links" style="color:#999;font-size:12px;">No exam data yet</div>
+            <div class="pos-stats"><span class="stat">No exam data</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-7 / Gr B</span><span class="vac-pill">I/08/1/Rectt/2025-26</span><span class="vac-pill">Vacancies: 1200 (SC 253 ST 24 OBC 324 EWS 119 UR 480)</span></div>
+            <div class="pos-meta"><div class="day-pills"></div></div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:0.0%"></div></div>
         </div>
+        <div class="pos-card" >
+            <div class="pos-name">Hospital Attendant Gr-II</div>
+            <div class="pos-stats"><span class="stat">No exam data</span></div>
+            <div class="vac-line"><span class="vac-pill">Level-1 / Gr D</span><span class="vac-pill">I/08/11/Rectt/2025-26</span><span class="vac-pill">Vacancies: 43 (SC 9 ST 0 OBC 13 EWS 4 UR 17)</span></div>
+            <div class="pos-meta"><div class="day-pills"></div></div>
+            <div class="pos-bar"><div class="pos-bar-fill" style="width:0.0%"></div></div>
+        </div></div>
 </div>
+<script>
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => { document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); };
+if (t.checked) document.body.classList.add('dark');
+</script>
 </body>
 </html>
