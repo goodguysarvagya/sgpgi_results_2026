@@ -579,6 +579,7 @@ if (t.checked) document.body.classList.add('dark');
 pdfs = [
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day1_Raw_Score_19_July_2026.pdf", "Day 1 (19 July 2026)", "19 July 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day2_Raw_Score_20_June_2026.pdf", "Day 2 (20 June 2026)", "20 June 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day3_Raw_Score_21_June_2026.pdf", "Day 3 (21 June 2026)", "21 June 2026"),
 ]
 
 all_positions = defaultdict(list)
