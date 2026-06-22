@@ -565,6 +565,8 @@ h1 {{ font-size: 26px; color: var(--accent); }}
 .pos-bar-fill {{ height: 100%; background: var(--accent); }}
 .total-badge {{ text-align: center; margin-bottom: 18px; font-size: 14px; color: var(--text2); }}
 .total-badge strong {{ color: var(--accent); }}
+.disclaimer {{ margin-top: 28px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.7; }}
+.disclaimer strong {{ color: var(--accent); }}
 @media (max-width: 720px) {{ .grid {{ grid-template-columns: 1fr; }} body {{ padding: 16px; }} h1 {{ font-size: 22px; }} }}
 </style>
 </head>
@@ -578,6 +580,9 @@ h1 {{ font-size: 26px; color: var(--accent); }}
 <div class="exam-list">Exams: <strong>{', '.join(total_exams)}</strong></div>
 <div class="total-badge">Total Candidates: <strong>{total_all}</strong> across {len(position_days)} positions</div>
 <div class="grid">{cards}</div>
+<div class="disclaimer">
+<strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS. The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
+</div>
 </div>
 <script>
 const t = document.getElementById('darkToggle');
