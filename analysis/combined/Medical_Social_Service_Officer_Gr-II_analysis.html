@@ -85,6 +85,10 @@ tr:hover td { background: var(--hover-bg); }
 .pagination button:hover:not(.active) { background: var(--hover-bg); }
 .filter-input { padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }
 .filter-input:focus { border-color: var(--accent); }
+.disclaimer { margin-top: 28px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.7; }
+.disclaimer strong { color: var(--accent); }
+.footer { margin-top: 18px; text-align: center; font-size: 11px; color: var(--text2); padding: 12px 0 4px; border-top: 1px solid var(--border); }
+.footer a { color: var(--accent); text-decoration: none; }
 @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -338,5 +342,9 @@ t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark
 t.onchange = () => { document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); };
 if (t.checked) document.body.classList.add('dark');
 </script>
+<div class="disclaimer">
+<strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS. The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
+</div>
+<div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
 </body>
 </html>
