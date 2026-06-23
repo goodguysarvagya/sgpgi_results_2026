@@ -173,7 +173,7 @@ const stats = {"name": "CSSD Assistant", "total": 33, "highest": 85.01, "lowest"
 const cutoffs = {"Top 1%": -6.75, "Top 5%": -0.79, "Top 10%": 4.86, "Top 20%": 13.83, "Top 25%": 14.49, "Top 30%": 14.54, "Top 40%": 15.87, "Top 50%": 17.48, "Top 60%": 18.45, "Top 70%": 26.16, "Top 75%": 29.11, "Top 80%": 37.12, "Top 90%": 47.08, "Top 95%": 60.03, "Top 99%": 85.01};
 const showDay = false;
 
-fetch("../../data/combined/CSSD_Assistant_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("data/combined/CSSD_Assistant_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

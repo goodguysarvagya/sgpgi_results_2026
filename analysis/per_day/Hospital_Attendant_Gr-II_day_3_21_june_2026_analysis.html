@@ -173,7 +173,7 @@ const stats = {"name": "Hospital Attendant Gr-II", "total": 9607, "highest": 96.
 const cutoffs = {"Top 1%": 1.21, "Top 5%": 13.55, "Top 10%": 20.77, "Top 20%": 28.51, "Top 25%": 31.76, "Top 30%": 34.14, "Top 40%": 38.81, "Top 50%": 42.81, "Top 60%": 47.1, "Top 70%": 51.37, "Top 75%": 53.45, "Top 80%": 56.06, "Top 90%": 61.76, "Top 95%": 66.69, "Top 99%": 74.72};
 const showDay = false;
 
-fetch("../../data/per_day/Hospital_Attendant_Gr-II_day_3_21_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("data/per_day/Hospital_Attendant_Gr-II_day_3_21_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

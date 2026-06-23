@@ -173,7 +173,7 @@ const stats = {"name": "O.T. Assistant", "total": 357, "highest": 79.7, "lowest"
 const cutoffs = {"Top 1%": -4.74, "Top 5%": 1.56, "Top 10%": 5.9, "Top 20%": 11.03, "Top 25%": 14.5, "Top 30%": 17.43, "Top 40%": 22.14, "Top 50%": 25.52, "Top 60%": 29.14, "Top 70%": 32.75, "Top 75%": 35.81, "Top 80%": 38.41, "Top 90%": 45.06, "Top 95%": 51.39, "Top 99%": 63.4};
 const showDay = false;
 
-fetch("../../data/combined/OT_Assistant_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("data/combined/OT_Assistant_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

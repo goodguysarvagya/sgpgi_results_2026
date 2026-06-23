@@ -173,7 +173,7 @@ const stats = {"name": "Nursing Officer", "total": 20321, "highest": 98.67, "low
 const cutoffs = {"Top 1%": -1.5, "Top 5%": 4.24, "Top 10%": 8.5, "Top 20%": 14.77, "Top 25%": 17.49, "Top 30%": 20.13, "Top 40%": 24.78, "Top 50%": 29.42, "Top 60%": 33.76, "Top 70%": 38.44, "Top 75%": 41.38, "Top 80%": 44.03, "Top 90%": 51.04, "Top 95%": 56.05, "Top 99%": 65.04};
 const showDay = true;
 
-fetch("../../data/combined/Nursing_Officer_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("data/combined/Nursing_Officer_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

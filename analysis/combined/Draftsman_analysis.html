@@ -173,7 +173,7 @@ const stats = {"name": "Draftsman", "total": 18, "highest": 52.08, "lowest": 0.2
 const cutoffs = {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08};
 const showDay = false;
 
-fetch("../../data/combined/Draftsman_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("data/combined/Draftsman_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
