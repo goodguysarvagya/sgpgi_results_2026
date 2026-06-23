@@ -614,6 +614,7 @@ pdfs = [
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day2_Raw_Score_20_June_2026.pdf", "Day 2 (20 June 2026)", "20 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day3_Raw_Score_21_June_2026.pdf", "Day 3 (21 June 2026)", "21 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day4_Raw_Score_22_June_2026.pdf", "Day 4 (22 June 2026)", "22 June 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day5_Raw_Score_23_June_2026.pdf", "Day 5 (23 June 2026)", "23 June 2026"),
 ]
 
 all_positions = defaultdict(list)
@@ -624,8 +625,22 @@ for pdf_path, day_label, exam_date in pdfs:
     for page in doc:
         all_text += page.get_text() + "\n"
 
+    # Try single-line format first (Day 1-3): SG  roll  marks  Subject
     pattern = r"(SG\d+)\s+(\d+)\s+([-\d.]+)\s+(.+)"
     matches = re.findall(pattern, all_text)
+
+    # Check if the captured subject column looks valid (not just another SG number)
+    if matches:
+        valid = sum(1 for m in matches if not m[3].strip().startswith("SG"))
+        if valid < len(matches) * 0.5:
+            matches = []  # Invalid format, retry
+
+    if not matches:
+        # Multi-line format: SG on one line, roll+marks on next (Day 4-5)
+        subj_match = re.search(r"Subject:\s*(.+)", all_text)
+        default_subj = subj_match.group(1).strip() if subj_match else "Unknown"
+        pattern2 = r"(SG\d+)\s*\n\s*(\d+)\s+([-\d.]+)"
+        matches = [(m.group(1), m.group(2), m.group(3), default_subj) for m in re.finditer(pattern2, all_text)]
 
     day_records = defaultdict(list)
     for reg, roll, marks, subj in matches:
