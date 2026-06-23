@@ -173,7 +173,7 @@ const stats = {"name": "Senior Administrative Assistant", "total": 1526, "highes
 const cutoffs = {"Top 1%": -0.44, "Top 5%": 5.8, "Top 10%": 10.18, "Top 20%": 18.19, "Top 25%": 21.17, "Top 30%": 24.4, "Top 40%": 30.46, "Top 50%": 35.76, "Top 60%": 41.12, "Top 70%": 47.1, "Top 75%": 50.09, "Top 80%": 53.05, "Top 90%": 61.09, "Top 95%": 66.75, "Top 99%": 75.7};
 const showDay = false;
 
-fetch("data/per_day/Senior_Administrative_Assistant_day_2_20_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("../../data/per_day/Senior_Administrative_Assistant_day_2_20_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

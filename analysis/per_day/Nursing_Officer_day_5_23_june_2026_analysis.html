@@ -173,7 +173,7 @@ const stats = {"name": "Nursing Officer", "total": 9982, "highest": 98.67, "lowe
 const cutoffs = {"Top 1%": -1.76, "Top 5%": 4.19, "Top 10%": 8.18, "Top 20%": 14.12, "Top 25%": 16.54, "Top 30%": 19.15, "Top 40%": 23.79, "Top 50%": 28.1, "Top 60%": 32.42, "Top 70%": 37.4, "Top 75%": 40.09, "Top 80%": 43.08, "Top 90%": 50.72, "Top 95%": 56.09, "Top 99%": 65.05};
 const showDay = false;
 
-fetch("data/per_day/Nursing_Officer_day_5_23_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("../../data/per_day/Nursing_Officer_day_5_23_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

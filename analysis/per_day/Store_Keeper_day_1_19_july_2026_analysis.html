@@ -173,7 +173,7 @@ const stats = {"name": "Store Keeper", "total": 361, "highest": 83.36, "lowest":
 const cutoffs = {"Top 1%": -6.07, "Top 5%": 1.18, "Top 10%": 5.42, "Top 20%": 11.16, "Top 25%": 13.86, "Top 30%": 16.53, "Top 40%": 22.47, "Top 50%": 28.81, "Top 60%": 36.43, "Top 70%": 43.77, "Top 75%": 47.72, "Top 80%": 49.78, "Top 90%": 58.73, "Top 95%": 66.4, "Top 99%": 80.67};
 const showDay = false;
 
-fetch("data/per_day/Store_Keeper_day_1_19_july_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("../../data/per_day/Store_Keeper_day_1_19_july_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

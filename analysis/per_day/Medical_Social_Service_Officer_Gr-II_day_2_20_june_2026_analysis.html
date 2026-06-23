@@ -173,7 +173,7 @@ const stats = {"name": "Medical Social Service Officer Gr-II", "total": 204, "hi
 const cutoffs = {"Top 1%": -0.47, "Top 5%": 2.82, "Top 10%": 6.9, "Top 20%": 14.87, "Top 25%": 18.83, "Top 30%": 22.18, "Top 40%": 29.77, "Top 50%": 35.43, "Top 60%": 41.78, "Top 70%": 49.11, "Top 75%": 52.71, "Top 80%": 57.4, "Top 90%": 68.04, "Top 95%": 71.71, "Top 99%": 77.05};
 const showDay = false;
 
-fetch("data/per_day/Medical_Social_Service_Officer_Gr-II_day_2_20_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("../../data/per_day/Medical_Social_Service_Officer_Gr-II_day_2_20_june_2026_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

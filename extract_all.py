@@ -113,6 +113,7 @@ def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_labe
     cutoffs_json = json.dumps(stats["cutoffs"])
     header_suffix = f" ({source_label})" if source_label != "Combined" else ""
     back_link = "../../index.html"
+    data_prefix = "../../"
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -289,7 +290,7 @@ const stats = {json.dumps(stats)};
 const cutoffs = {cutoffs_json};
 const showDay = {show_day_col};
 
-fetch("{json_rel}").then(r=>r.json()).then(d=>{{ allData = d; loadData(); }});
+fetch("{data_prefix}{json_rel}").then(r=>r.json()).then(d=>{{ allData = d; loadData(); }});
 
 function loadData() {{
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();

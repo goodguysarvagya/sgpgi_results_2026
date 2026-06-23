@@ -173,7 +173,7 @@ const stats = {"name": "Nuclear Medicine Technologist", "total": 16, "highest": 
 const cutoffs = {"Top 1%": 19.38, "Top 5%": 19.38, "Top 10%": 19.82, "Top 20%": 26.76, "Top 25%": 26.76, "Top 30%": 28.13, "Top 40%": 34.72, "Top 50%": 36.69, "Top 60%": 46.75, "Top 70%": 49.41, "Top 75%": 49.41, "Top 80%": 50.78, "Top 90%": 52.41, "Top 95%": 65.37, "Top 99%": 65.37};
 const showDay = false;
 
-fetch("data/combined/Nuclear_Medicine_Technologist_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
+fetch("../../data/combined/Nuclear_Medicine_Technologist_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
