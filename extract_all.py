@@ -540,7 +540,7 @@ def gen_index(all_positions):
             <div class="pos-name">{pos_name}</div>
             <div class="pos-stats">{stat_line}</div>
             {vac_line}
-            <div class="pos-meta"><div class="day-pills">{days_html}</div>{'<div class="day-links">'+day_links+'</div>' if day_links else ''}</div>
+            <div class="pos-meta">{'<div class="day-links">'+day_links+'</div>' if day_links else '<div class="day-pills">'+days_html+'</div>'}</div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:{width_pct}%"></div></div>
         </div>"""
 
