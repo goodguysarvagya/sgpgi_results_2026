@@ -530,13 +530,6 @@ def gen_index(all_positions):
                 sorted_m = sorted(records, key=lambda x: x["Marks"], reverse=True)
                 cr = sorted_m[vac["total"] - 1]
                 cutoff_info = f'<span class="vac-pill" style="background:var(--accent);color:var(--surface);">Cutoff: {cr["Marks"]:.2f} ({cr["Percentile"]:.1f}pctl)</span>'
-                # Multiplier cutoffs for Nursing Officer (Paper II qualification)
-                if pos_name == "Nursing Officer":
-                    for mult in [2, 3, 5]:
-                        r = vac["total"] * mult
-                        if r <= total:
-                            mc = sorted_m[r - 1]
-                            cutoff_info += f'<span class="vac-pill" style="background:var(--accent2);color:var(--surface);">{mult}x: {mc["Marks"]:.2f} ({mc["Percentile"]:.1f}pctl)</span>'
             vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}</div>'
 
         width_pct = total / max_total * 100 if max_total else 0
