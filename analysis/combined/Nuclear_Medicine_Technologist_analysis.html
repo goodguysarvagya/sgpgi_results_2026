@@ -167,11 +167,13 @@ tr:hover td { background: var(--hover-bg); }
 
 <script>
 const PAGE_SIZE = 50;
-let allData = [{"rank": 1, "day": "Day 1 (19 July 2026)", "reg": "SG250023947", "roll": "1010400003", "marks": 65.37, "pctl": 100.0}, {"rank": 2, "day": "Day 1 (19 July 2026)", "reg": "SG250099785", "roll": "1020400015", "marks": 52.41, "pctl": 93.75}, {"rank": 3, "day": "Day 1 (19 July 2026)", "reg": "SG250057998", "roll": "1010400005", "marks": 52.36, "pctl": 87.5}, {"rank": 4, "day": "Day 1 (19 July 2026)", "reg": "SG250018184", "roll": "1030400018", "marks": 50.78, "pctl": 81.25}, {"rank": 5, "day": "Day 1 (19 July 2026)", "reg": "SG250057626", "roll": "1050400025", "marks": 49.41, "pctl": 75.0}, {"rank": 6, "day": "Day 1 (19 July 2026)", "reg": "SG250051291", "roll": "1020400013", "marks": 48.06, "pctl": 68.75}, {"rank": 7, "day": "Day 1 (19 July 2026)", "reg": "SG250108782", "roll": "1010400009", "marks": 46.75, "pctl": 62.5}, {"rank": 8, "day": "Day 1 (19 July 2026)", "reg": "SG250035767", "roll": "1010400004", "marks": 45.03, "pctl": 56.25}, {"rank": 9, "day": "Day 1 (19 July 2026)", "reg": "SG250064717", "roll": "1030400020", "marks": 36.69, "pctl": 50.0}, {"rank": 10, "day": "Day 1 (19 July 2026)", "reg": "SG250078233", "roll": "1010400008", "marks": 34.72, "pctl": 43.75}, {"rank": 11, "day": "Day 1 (19 July 2026)", "reg": "SG250011361", "roll": "1020400011", "marks": 31.08, "pctl": 37.5}, {"rank": 12, "day": "Day 1 (19 July 2026)", "reg": "SG250002572", "roll": "1010400001", "marks": 28.13, "pctl": 31.25}, {"rank": 13, "day": "Day 1 (19 July 2026)", "reg": "SG250064863", "roll": "1010400006", "marks": 26.76, "pctl": 25.0}, {"rank": 14, "day": "Day 1 (19 July 2026)", "reg": "SG250023721", "roll": "1020400012", "marks": 22.81, "pctl": 18.75}, {"rank": 15, "day": "Day 1 (19 July 2026)", "reg": "SG250002597", "roll": "1010400002", "marks": 19.82, "pctl": 12.5}, {"rank": 16, "day": "Day 1 (19 July 2026)", "reg": "SG250003589", "roll": "1020400010", "marks": 19.38, "pctl": 6.25}];
+let allData = [];
 let currentPage = 1;
 const stats = {"name": "Nuclear Medicine Technologist", "total": 16, "highest": 65.37, "lowest": 19.38, "average": 39.35, "median": 40.86, "std_dev": 13.34, "positive": 16, "negative": 0, "cutoffs": {"Top 1%": 19.38, "Top 5%": 19.38, "Top 10%": 19.82, "Top 20%": 26.76, "Top 25%": 26.76, "Top 30%": 28.13, "Top 40%": 34.72, "Top 50%": 36.69, "Top 60%": 46.75, "Top 70%": 49.41, "Top 75%": 49.41, "Top 80%": 50.78, "Top 90%": 52.41, "Top 95%": 65.37, "Top 99%": 65.37}, "advt": "I/08/4/Rectt/2025-26", "vac_total": 7, "sc": 2, "st": 0, "obc": 2, "ews": 0, "ur": 3, "level": "Level-5", "group": "C", "cutoff_marks": 46.75, "cutoff_pctl": 62.5, "mult_cutoffs": {"2x": {"rank": 14, "marks": 22.81, "pctl": 18.75}}};
 const cutoffs = {"Top 1%": 19.38, "Top 5%": 19.38, "Top 10%": 19.82, "Top 20%": 26.76, "Top 25%": 26.76, "Top 30%": 28.13, "Top 40%": 34.72, "Top 50%": 36.69, "Top 60%": 46.75, "Top 70%": 49.41, "Top 75%": 49.41, "Top 80%": 50.78, "Top 90%": 52.41, "Top 95%": 65.37, "Top 99%": 65.37};
 const showDay = false;
+
+fetch("data/combined/Nuclear_Medicine_Technologist_data.json").then(r=>r.json()).then(d=>{ allData = d; loadData(); });
 
 function loadData() {
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
@@ -343,7 +345,6 @@ document.querySelector(`.tab-btn[onclick*='${tab}']`).classList.add('active');
 document.getElementById(`tab-${tab}`).classList.add('active');
 }
 
-loadData();
 const t = document.getElementById('darkToggle');
 const m = window.matchMedia('(prefers-color-scheme:dark)');
 t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
