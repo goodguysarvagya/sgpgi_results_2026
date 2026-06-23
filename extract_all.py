@@ -42,23 +42,16 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
         csv_dir = data_combined
         html_dir = html_combined
         csv_rel = f"data/combined/{filename_tag}_analysis.csv"
-        json_rel = f"data/combined/{filename_tag}_data.json"
     else:
         csv_dir = data_per_day
         html_dir = html_per_day
         csv_rel = f"data/per_day/{filename_tag}_analysis.csv"
-        json_rel = f"data/per_day/{filename_tag}_data.json"
 
     csv_path = csv_dir / f"{filename_tag}_analysis.csv"
     with open(csv_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["Day", "Exam_Date", "Rank", "Registration_No", "Roll_No", "Marks", "Percentile"])
         writer.writeheader()
         writer.writerows(sorted_by_roll)
-
-    json_path = csv_dir / f"{filename_tag}_data.json"
-    json_data = [{"rank": r["Rank"], "day": r.get("Day", ""), "reg": r["Registration_No"], "roll": r["Roll_No"], "marks": r["Marks"], "pctl": r["Percentile"]} for r in sorted_recs]
-    with open(json_path, "w") as f:
-        json.dump(json_data, f)
 
     marks_list = [r["Marks"] for r in sorted_recs]
     sorted_desc = sorted(marks_list, reverse=True)
@@ -103,13 +96,17 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
     days_count = len(set(r.get("Day", "") for r in sorted_recs))
     show_day_col = "true" if days_count > 1 else "false"
 
-    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col, json_rel)
+    gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col)
     print(f"  [{source_label}] CSV+HTML: {csv_path.name}")
 
-def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col="true", json_rel=""):
+def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col="true"):
     total = stats["total"]
     day_th = "<th>Day</th>" if show_day_col == "true" else ""
-    cutoffs_json = json.dumps(stats["cutoffs"])
+    all_json = json.dumps([{
+        "rank": r["Rank"], "day": r.get("Day", ""),
+        "reg": r["Registration_No"], "roll": r["Roll_No"],
+        "marks": r["Marks"], "pctl": r["Percentile"]
+    } for r in sorted_recs])
     cutoffs_json = json.dumps(stats["cutoffs"])
     header_suffix = f" ({source_label})" if source_label != "Combined" else ""
     back_link = "../../index.html"
@@ -283,13 +280,11 @@ tr:hover td {{ background: var(--hover-bg); }}
 
 <script>
 const PAGE_SIZE = 50;
-let allData = [];
+let allData = {all_json};
 let currentPage = 1;
 const stats = {json.dumps(stats)};
 const cutoffs = {cutoffs_json};
 const showDay = {show_day_col};
-
-fetch("{json_rel}").then(r=>r.json()).then(d=>{{ allData = d; loadData(); }});
 
 function loadData() {{
 renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
@@ -461,6 +456,7 @@ document.querySelector(`.tab-btn[onclick*='${{tab}}']`).classList.add('active');
 document.getElementById(`tab-${{tab}}`).classList.add('active');
 }}
 
+loadData();
 const t = document.getElementById('darkToggle');
 const m = window.matchMedia('(prefers-color-scheme:dark)');
 t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
