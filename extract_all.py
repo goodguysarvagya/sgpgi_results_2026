@@ -70,10 +70,16 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
     vac = VACANCIES.get(subj_name, {})
     vac_total = vac.get("total", 0)
     cutoff_marks = None; cutoff_pctl = None
+    mult_cutoffs = {}
     if vac_total > 0 and vac_total <= total:
         cr = sorted_recs[vac_total - 1]
         cutoff_marks = cr["Marks"]
         cutoff_pctl = cr["Percentile"]
+        for mult in [2, 3, 5]:
+            r = vac_total * mult
+            if r <= total:
+                mc = sorted_recs[r - 1]
+                mult_cutoffs[f"{mult}x"] = {"rank": r, "marks": mc["Marks"], "pctl": mc["Percentile"]}
     stats = {
         "name": subj_name, "total": total,
         "highest": round(max(marks_list), 2), "lowest": round(min(marks_list), 2),
@@ -83,7 +89,8 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
         "sc": vac.get("sc", 0), "st": vac.get("st", 0), "obc": vac.get("obc", 0),
         "ews": vac.get("ews", 0), "ur": vac.get("ur", 0),
         "level": vac.get("level", ""), "group": vac.get("group", ""),
-        "cutoff_marks": cutoff_marks, "cutoff_pctl": cutoff_pctl
+        "cutoff_marks": cutoff_marks, "cutoff_pctl": cutoff_pctl,
+        "mult_cutoffs": mult_cutoffs
     }
 
     days_count = len(set(r.get("Day", "") for r in sorted_recs))
@@ -135,6 +142,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); colo
 .vacancy-box .vac-cat span {{ background: var(--hover-bg); padding: 2px 6px; font-size: 11px; }}
 .vacancy-box .cutoff-line {{ display: inline-block; margin-top: 6px; font-size: 12px; color: var(--text2); border-top: 1px dashed var(--border); padding-top: 6px; width: 100%; }}
 .vacancy-box .cutoff-line strong {{ color: var(--accent); }}
+.vacancy-box .mult-pill {{ display: inline-block; background: var(--hover-bg); padding: 2px 8px; margin: 2px 2px 0 0; font-size: 11px; font-weight: 600; color: var(--accent); }}
 .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }}
 .stat-card {{ background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }}
 .stat-card .label {{ font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }}
@@ -294,6 +302,13 @@ let html = `
 <span class="vac-cat"><span>SC ${{v.sc}}</span><span>ST ${{v.st}}</span><span>OBC ${{v.obc}}</span><span>EWS ${{v.ews}}</span><span>UR ${{v.ur}}</span></span>`;
 if (v.cutoff_marks !== null) {{
 html += `<br><span class="cutoff-line">Expected Cutoff (approx): <strong>${{v.cutoff_marks.toFixed(2)}}</strong> marks &nbsp;|&nbsp; Percentile: <strong>${{v.cutoff_pctl}}</strong> (at rank #${{v.vac_total}})</span>`;
+}}
+if (v.mult_cutoffs && Object.keys(v.mult_cutoffs).length) {{
+html += `<br><span class="cutoff-line">Paper II qualification cutoffs (estimated): `;
+for (const [k, c] of Object.entries(v.mult_cutoffs)) {{
+html += `<span class="mult-pill">${{k}} (rank #${{c.rank}}): <strong>${{c.marks.toFixed(2)}}</strong> marks (${{c.pctl}}pctl)</span> `;
+}}
+html += `</span>`;
 }}
 document.getElementById('vacancyBox').innerHTML = html;
 }}
@@ -515,6 +530,13 @@ def gen_index(all_positions):
                 sorted_m = sorted(records, key=lambda x: x["Marks"], reverse=True)
                 cr = sorted_m[vac["total"] - 1]
                 cutoff_info = f'<span class="vac-pill" style="background:var(--accent);color:var(--surface);">Cutoff: {cr["Marks"]:.2f} ({cr["Percentile"]:.1f}pctl)</span>'
+                # Multiplier cutoffs for Nursing Officer (Paper II qualification)
+                if pos_name == "Nursing Officer":
+                    for mult in [2, 3, 5]:
+                        r = vac["total"] * mult
+                        if r <= total:
+                            mc = sorted_m[r - 1]
+                            cutoff_info += f'<span class="vac-pill" style="background:var(--accent2);color:var(--surface);">{mult}x: {mc["Marks"]:.2f} ({mc["Percentile"]:.1f}pctl)</span>'
             vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}</div>'
 
         width_pct = total / max_total * 100 if max_total else 0

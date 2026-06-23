@@ -29,6 +29,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color
 .vacancy-box .vac-cat span { background: var(--hover-bg); padding: 2px 6px; font-size: 11px; }
 .vacancy-box .cutoff-line { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--text2); border-top: 1px dashed var(--border); padding-top: 6px; width: 100%; }
 .vacancy-box .cutoff-line strong { color: var(--accent); }
+.vacancy-box .mult-pill { display: inline-block; background: var(--hover-bg); padding: 2px 8px; margin: 2px 2px 0 0; font-size: 11px; font-weight: 600; color: var(--accent); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
 .stat-card { background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }
 .stat-card .label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
@@ -168,7 +169,7 @@ tr:hover td { background: var(--hover-bg); }
 const PAGE_SIZE = 50;
 let allData = [{"rank": 1, "day": "Day 1 (19 July 2026)", "reg": "SG250140510", "roll": "1011000007", "marks": 52.08, "pctl": 100.0}, {"rank": 2, "day": "Day 1 (19 July 2026)", "reg": "SG250094037", "roll": "1041000037", "marks": 45.44, "pctl": 94.44}, {"rank": 3, "day": "Day 1 (19 July 2026)", "reg": "SG250032680", "roll": "1031000022", "marks": 38.12, "pctl": 88.89}, {"rank": 4, "day": "Day 1 (19 July 2026)", "reg": "SG250058526", "roll": "1021000015", "marks": 35.75, "pctl": 83.33}, {"rank": 5, "day": "Day 1 (19 July 2026)", "reg": "SG250109131", "roll": "1051000042", "marks": 35.75, "pctl": 77.78}, {"rank": 6, "day": "Day 1 (19 July 2026)", "reg": "SG250052358", "roll": "1021000014", "marks": 35.41, "pctl": 72.22}, {"rank": 7, "day": "Day 1 (19 July 2026)", "reg": "SG250014911", "roll": "1041000031", "marks": 27.82, "pctl": 66.67}, {"rank": 8, "day": "Day 1 (19 July 2026)", "reg": "SG250108730", "roll": "1011000005", "marks": 27.78, "pctl": 61.11}, {"rank": 9, "day": "Day 1 (19 July 2026)", "reg": "SG250057895", "roll": "1011000002", "marks": 22.83, "pctl": 55.56}, {"rank": 10, "day": "Day 1 (19 July 2026)", "reg": "SG250093807", "roll": "1021000019", "marks": 21.48, "pctl": 50.0}, {"rank": 11, "day": "Day 1 (19 July 2026)", "reg": "SG250028052", "roll": "1021000011", "marks": 19.42, "pctl": 44.44}, {"rank": 12, "day": "Day 1 (19 July 2026)", "reg": "SG250141425", "roll": "1031000028", "marks": 15.04, "pctl": 38.89}, {"rank": 13, "day": "Day 1 (19 July 2026)", "reg": "SG250028804", "roll": "1021000012", "marks": 14.86, "pctl": 33.33}, {"rank": 14, "day": "Day 1 (19 July 2026)", "reg": "SG250086113", "roll": "1051000041", "marks": 12.53, "pctl": 27.78}, {"rank": 15, "day": "Day 1 (19 July 2026)", "reg": "SG250067865", "roll": "1011000004", "marks": 9.77, "pctl": 22.22}, {"rank": 16, "day": "Day 1 (19 July 2026)", "reg": "SG250013993", "roll": "1021000010", "marks": 7.49, "pctl": 16.67}, {"rank": 17, "day": "Day 1 (19 July 2026)", "reg": "SG250139526", "roll": "1011000006", "marks": 0.25, "pctl": 11.11}, {"rank": 18, "day": "Day 1 (19 July 2026)", "reg": "SG250111559", "roll": "1031000025", "marks": 0.25, "pctl": 5.56}];
 let currentPage = 1;
-const stats = {"name": "Draftsman", "total": 18, "highest": 52.08, "lowest": 0.25, "average": 23.45, "median": 22.16, "std_dev": 14.54, "positive": 18, "negative": 0, "cutoffs": {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08}, "advt": "I/08/10/Rectt/2025-26", "vac_total": 1, "sc": 0, "st": 0, "obc": 0, "ews": 0, "ur": 1, "level": "Level-4", "group": "C", "cutoff_marks": 52.08, "cutoff_pctl": 100.0};
+const stats = {"name": "Draftsman", "total": 18, "highest": 52.08, "lowest": 0.25, "average": 23.45, "median": 22.16, "std_dev": 14.54, "positive": 18, "negative": 0, "cutoffs": {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08}, "advt": "I/08/10/Rectt/2025-26", "vac_total": 1, "sc": 0, "st": 0, "obc": 0, "ews": 0, "ur": 1, "level": "Level-4", "group": "C", "cutoff_marks": 52.08, "cutoff_pctl": 100.0, "mult_cutoffs": {"2x": {"rank": 2, "marks": 45.44, "pctl": 94.44}, "3x": {"rank": 3, "marks": 38.12, "pctl": 88.89}, "5x": {"rank": 5, "marks": 35.75, "pctl": 77.78}}};
 const cutoffs = {"Top 1%": 0.25, "Top 5%": 0.25, "Top 10%": 0.25, "Top 20%": 9.77, "Top 25%": 12.53, "Top 30%": 14.86, "Top 40%": 19.42, "Top 50%": 21.48, "Top 60%": 27.78, "Top 70%": 35.41, "Top 75%": 35.75, "Top 80%": 35.75, "Top 90%": 45.44, "Top 95%": 52.08, "Top 99%": 52.08};
 const showDay = false;
 
@@ -188,6 +189,13 @@ let html = `
 <span class="vac-cat"><span>SC ${v.sc}</span><span>ST ${v.st}</span><span>OBC ${v.obc}</span><span>EWS ${v.ews}</span><span>UR ${v.ur}</span></span>`;
 if (v.cutoff_marks !== null) {
 html += `<br><span class="cutoff-line">Expected Cutoff (approx): <strong>${v.cutoff_marks.toFixed(2)}</strong> marks &nbsp;|&nbsp; Percentile: <strong>${v.cutoff_pctl}</strong> (at rank #${v.vac_total})</span>`;
+}
+if (v.mult_cutoffs && Object.keys(v.mult_cutoffs).length) {
+html += `<br><span class="cutoff-line">Paper II qualification cutoffs (estimated): `;
+for (const [k, c] of Object.entries(v.mult_cutoffs)) {
+html += `<span class="mult-pill">${k} (rank #${c.rank}): <strong>${c.marks.toFixed(2)}</strong> marks (${c.pctl}pctl)</span> `;
+}
+html += `</span>`;
 }
 document.getElementById('vacancyBox').innerHTML = html;
 }
