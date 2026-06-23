@@ -518,17 +518,16 @@ def gen_index(all_positions):
             vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}</div>'
 
         width_pct = total / max_total * 100 if max_total else 0
-        card_tag = "a" if card_link else "div"
-        extra_attr = f'href="{card_link}"' if card_link else ""
+        onclick_attr = f'onclick="window.location.href=\'{card_link}\'" style="cursor:pointer"' if card_link else ""
 
         cards += f"""
-        <{card_tag} class="pos-card" {extra_attr}>
+        <div class="pos-card" {onclick_attr}>
             <div class="pos-name">{pos_name}</div>
             <div class="pos-stats">{stat_line}</div>
             {vac_line}
             <div class="pos-meta"><div class="day-pills">{days_html}</div>{'<div class="day-links">'+day_links+'</div>' if day_links else ''}</div>
             <div class="pos-bar"><div class="pos-bar-fill" style="width:{width_pct}%"></div></div>
-        </{card_tag}>"""
+        </div>"""
 
     total_exams = sorted(set(e for pd in position_days.values() for e in pd["exams"]))
 
