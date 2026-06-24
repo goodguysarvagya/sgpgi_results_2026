@@ -492,6 +492,7 @@ def gen_index(all_positions):
         return (0 if info["total"] > 0 else 1, -info["total"])
 
     cards = ""
+    prefetch_paths = set()
     for pos_name, info in sorted(position_days.items(), key=sort_key):
         safe_name = info["safe"]
         days_html = "".join(f'<span class="day-pill">{d}</span>' for d in info["days"])
@@ -506,6 +507,7 @@ def gen_index(all_positions):
                 d = list(info["days"])[0]
                 ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
                 card_link = f"analysis/per_day/{safe_name}_{ds}_analysis.html"
+            prefetch_paths.add(card_link)
             marks_list = [r["Marks"] for r in records]
             avg = sum(marks_list) / total
             highest = max(marks_list)
@@ -521,6 +523,7 @@ def gen_index(all_positions):
                 ds = d.lower().replace(" ", "_").replace("(", "").replace(")", "")
                 dc = sum(1 for r in all_positions[pos_name] if r["Day"] == d)
                 day_links += f'<a href="analysis/per_day/{safe_name}_{ds}_analysis.html">{d}</a>'
+                prefetch_paths.add(f"analysis/per_day/{safe_name}_{ds}_analysis.html")
 
         vac_line = ""
         if vac:
@@ -552,6 +555,7 @@ def gen_index(all_positions):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SGPGIMS Exam Results</title>
+{'\n'.join(f'<link rel="prefetch" href="{p}">' for p in sorted(prefetch_paths))}
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 :root {{ --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --bar-bg: #d0d4dc; --pill-bg: #eef0f6; --pill-text: #1a237e; --vac-bg: #fff3e0; --vac-text: #e65100; }}
@@ -629,6 +633,7 @@ pdfs = [
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day3_Raw_Score_21_June_2026.pdf", "Day 3 (21 June 2026)", "21 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day4_Raw_Score_22_June_2026.pdf", "Day 4 (22 June 2026)", "22 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day5_Raw_Score_23_June_2026.pdf", "Day 5 (23 June 2026)", "23 June 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day_6_RawScore_24_June_2026.pdf", "Day 6 (24 June 2026)", "24 June 2026"),
 ]
 
 all_positions = defaultdict(list)
