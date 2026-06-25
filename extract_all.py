@@ -634,6 +634,7 @@ pdfs = [
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day4_Raw_Score_22_June_2026.pdf", "Day 4 (22 June 2026)", "22 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day5_Raw_Score_23_June_2026.pdf", "Day 5 (23 June 2026)", "23 June 2026"),
     (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day_6_RawScore_24_June_2026.pdf", "Day 6 (24 June 2026)", "24 June 2026"),
+    (r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Day7_Raw_Score_25_June_2026.pdf", "Day 7 (25 June 2026)", "25 June 2026"),
 ]
 
 all_positions = defaultdict(list)
