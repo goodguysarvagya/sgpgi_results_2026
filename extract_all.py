@@ -209,7 +209,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 <body>
 <div class="container">
 <div class="header-row">
-<div><a class="back-link" href="{back_link}">&larr; Back to All Positions</a><h1>{subj_name}{header_suffix}</h1></div>
+<div><a class="back-link" href="{back_link}">&larr; Back to All Positions</a><h1>{subj_name}{header_suffix}</h1><a class="back-link" href="../called_candidates/{safe_name}_called_candidates.html" style="margin-left:12px;color:#e65100;">View Called Candidates &rarr;</a></div>
 <label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
 </div>
 <p class="subtitle">SGPGIMS Raw Score Analysis</p>
@@ -608,12 +608,39 @@ h1 {{ font-size: 26px; color: var(--accent); }}
 <div class="exam-list">Exams: <strong>{', '.join(total_exams)}</strong></div>
 <div class="total-badge">Total Candidates: <strong>{total_all}</strong> across {len(position_days)} positions</div>
 <div class="grid">{cards}</div>
+<div style="margin-top:36px;padding-top:20px;border-top:2px solid var(--accent);">
+<h2 style="font-size:22px;color:var(--accent);margin-bottom:4px;">Shortlisted Candidates</h2>
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px;">Candidates called for Skill Test or Document Verification</p>
+<div class="grid" id="calledGrid"></div>
+</div>
 <div class="disclaimer">
 <strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS. The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
 </div>
 <div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
 </div>
 <script>
+const calledPositions = [
+    {{ name: "Senior Administrative Assistant", safe: "Senior_Administrative_Assistant", type: "Skill Test", count: 104 }},
+    {{ name: "Stenographer", safe: "Stenographer", type: "Skill Test", count: 153 }},
+    {{ name: "O.T. Assistant", safe: "OT_Assistant", type: "Document Verification", count: 25 }},
+    {{ name: "Store Keeper", safe: "Store_Keeper", type: "Document Verification", count: 53 }},
+    {{ name: "Junior Accounts Officer", safe: "Junior_Accounts_Officer", type: "Document Verification", count: 13 }},
+    {{ name: "Medical Social Service Officer Gr-II", safe: "Medical_Social_Service_Officer_Gr-II", type: "Document Verification", count: 6 }},
+    {{ name: "Nuclear Medicine Technologist", safe: "Nuclear_Medicine_Technologist", type: "Document Verification", count: 4 }},
+    {{ name: "Technical Officer (CWS Biomedical)", safe: "Technical_Officer_CWS_Biomedical", type: "Document Verification", count: 3 }},
+    {{ name: "CSSD Assistant", safe: "CSSD_Assistant", type: "Document Verification", count: 2 }},
+    {{ name: "Draftsman", safe: "Draftsman", type: "Document Verification", count: 1 }},
+];
+const calledGrid = document.getElementById('calledGrid');
+calledGrid.innerHTML = calledPositions.map(p => {{
+    const color = p.type === 'Skill Test' ? '#e65100' : '#1a237e';
+    const link = `analysis/called_candidates/${{p.safe}}_called_candidates.html`;
+    return `<div class="pos-card" onclick="window.location.href='${{link}}'" style="cursor:pointer">
+        <div class="pos-name">${{p.name}}</div>
+        <div class="pos-stats"><span class="stat">${{p.count}} candidates called</span><span class="stat-sep">|</span><span class="stat" style="color:${{color}};font-weight:600;">${{p.type}}</span></div>
+    </div>`;
+}}).join('');
+
 const t = document.getElementById('darkToggle');
 const m = window.matchMedia('(prefers-color-scheme:dark)');
 t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);

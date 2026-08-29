@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Administrative Assistant - Called Candidates</title>
+<style>
+:root { --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --hover-bg: #f0f2f8; --input-bg: #fff; --pill-bg: #eef0f6; --pill-text: #1a237e; }
+body.dark { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --hover-bg: #2a2a35; --input-bg: #2a2a2a; --pill-bg: #2a2a3a; --pill-text: #7c8cdb; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: background 0.2s, color 0.2s; }
+.container { max-width: 1200px; margin: 0 auto; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.header-row h1 { font-size: 26px; color: var(--accent); }
+.subtitle { color: var(--text2); margin-bottom: 16px; font-size: 13px; }
+.back-link { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 8px; }
+.back-link:hover { text-decoration: underline; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }
+.toggle input { display: none; }
+.toggle .slider { width: 38px; height: 20px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }
+.toggle .slider::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider::after { left: 21px; }
+.info-box { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; }
+.info-pill { background: var(--pill-bg); color: var(--pill-text); padding: 3px 10px; font-weight: 600; font-size: 11px; }
+.call-type-badge { padding: 4px 12px; font-weight: 700; font-size: 12px; color: #fff; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }
+.stat-card .label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.stat-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--accent); }
+.stat-card .value.green { color: #2e7d32; }
+body.dark .stat-card .value.green { color: #66bb6a; }
+.search-section { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-section input { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; outline: none; }
+.search-section input:focus { border-color: var(--accent); }
+.search-section button { padding: 8px 20px; background: var(--accent); color: var(--surface); border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+.search-section button:hover { background: var(--accent2); }
+.table-wrap { background: var(--surface); padding: 14px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 14px; }
+.table-wrap h3 { font-size: 13px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: var(--accent); color: var(--surface); padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
+tr:hover td { background: var(--hover-bg); }
+.rank-badge { background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }
+.roll-match { color: #2e7d32; font-weight: 600; }
+.roll-diff { color: #c62828; font-weight: 600; }
+.pagination { display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.pagination button { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
+.pagination button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.pagination button:hover:not(.active) { background: var(--hover-bg); }
+.filter-input { padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }
+.filter-input:focus { border-color: var(--accent); }
+.disclaimer { margin-top: 28px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.7; }
+.disclaimer strong { color: var(--accent); }
+.footer { margin-top: 18px; text-align: center; font-size: 11px; color: var(--text2); padding: 12px 0 4px; border-top: 1px solid var(--border); }
+.footer a { color: var(--accent); text-decoration: none; }
+@media (max-width: 720px) { body { padding: 16px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header-row">
+<div><a class="back-link" href="../../index.html">&larr; Back to All Positions</a><h1>Senior Administrative Assistant</h1></div>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
+<p class="subtitle">Called Candidates &mdash; Shortlisted for Skill Test</p>
+
+<div class="info-box" id="infoBox"></div>
+
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="search-section">
+<input id="candidateSearchInput" type="text" placeholder="Enter Registration No or Roll No..." onkeydown="if(event.key==='Enter') searchCandidate()">
+<button onclick="searchCandidate()">Search</button>
+</div>
+
+<div class="table-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+<h3 style="margin:0">All Called Candidates</h3>
+<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
+</div>
+<table><thead><tr><th>#</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th><th>Rank (CSV)</th><th>Rank (PDF)</th></tr></thead>
+<tbody id="allBody"></tbody></table>
+<div class="pagination" id="pagination"></div>
+</div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allData = [{"reg": "SG250026809", "roll_csv": "1190702771", "roll_pdf": "1190702771", "marks": 92.68, "pctl": 100.0, "rank_csv": 1, "rank_pdf": 1}, {"reg": "SG250142670", "roll_csv": "1180702688", "roll_pdf": "1180702688", "marks": 83.69, "pctl": 99.93, "rank_csv": 2, "rank_pdf": 2}, {"reg": "SG250092198", "roll_csv": "1180702610", "roll_pdf": "1180702610", "marks": 79.35, "pctl": 99.54, "rank_csv": 8, "rank_pdf": 3}, {"reg": "SG250084867", "roll_csv": "1160702098", "roll_pdf": "1160702098", "marks": 81.35, "pctl": 99.8, "rank_csv": 4, "rank_pdf": 4}, {"reg": "SG250017016", "roll_csv": "1110701189", "roll_pdf": "1110701189", "marks": 82.03, "pctl": 99.87, "rank_csv": 3, "rank_pdf": 5}, {"reg": "SG250030082", "roll_csv": "1110701211", "roll_pdf": "1110701211", "marks": 79.68, "pctl": 99.67, "rank_csv": 6, "rank_pdf": 6}, {"reg": "SG250050841", "roll_csv": "1030700330", "roll_pdf": "1030700330", "marks": 81.04, "pctl": 99.74, "rank_csv": 5, "rank_pdf": 7}, {"reg": "SG250031969", "roll_csv": "1110701213", "roll_pdf": "1110701213", "marks": 79.37, "pctl": 99.61, "rank_csv": 7, "rank_pdf": 8}, {"reg": "SG250001644", "roll_csv": "1130701438", "roll_pdf": "1130701438", "marks": 79.05, "pctl": 99.48, "rank_csv": 9, "rank_pdf": 9}, {"reg": "SG250142045", "roll_csv": "1080700942", "roll_pdf": "1080700942", "marks": 78.05, "pctl": 99.41, "rank_csv": 10, "rank_pdf": 10}, {"reg": "SG250112462", "roll_csv": "1110701291", "roll_pdf": "1110701291", "marks": 77.7, "pctl": 99.34, "rank_csv": 11, "rank_pdf": 11}, {"reg": "SG250006642", "roll_csv": "1100701056", "roll_pdf": "1100701056", "marks": 77.39, "pctl": 99.28, "rank_csv": 12, "rank_pdf": 12}, {"reg": "SG250013401", "roll_csv": "1180702454", "roll_pdf": "1180702454", "marks": 76.72, "pctl": 99.21, "rank_csv": 13, "rank_pdf": 13}, {"reg": "SG250075136", "roll_csv": "1040700457", "roll_pdf": "1040700457", "marks": 75.38, "pctl": 98.89, "rank_csv": 18, "rank_pdf": 14}, {"reg": "SG250148684", "roll_csv": "1020700289", "roll_pdf": "1020700289", "marks": 75.7, "pctl": 99.02, "rank_csv": 16, "rank_pdf": 15}, {"reg": "SG250108664", "roll_csv": "1190702911", "roll_pdf": "1190702911", "marks": 76.38, "pctl": 99.08, "rank_csv": 15, "rank_pdf": 16}, {"reg": "SG250079515", "roll_csv": "1170702347", "roll_pdf": "1170702347", "marks": 76.38, "pctl": 99.15, "rank_csv": 14, "rank_pdf": 17}, {"reg": "SG250042347", "roll_csv": "1150701753", "roll_pdf": "1150701753", "marks": 73.4, "pctl": 98.36, "rank_csv": 26, "rank_pdf": 18}, {"reg": "SG250074494", "roll_csv": "1040700455", "roll_pdf": "1040700455", "marks": 75.39, "pctl": 98.95, "rank_csv": 17, "rank_pdf": 19}, {"reg": "SG250026548", "roll_csv": "1150701723", "roll_pdf": "1150701723", "marks": 72.4, "pctl": 98.03, "rank_csv": 31, "rank_pdf": 20}, {"reg": "SG250015020", "roll_csv": "1040700402", "roll_pdf": "1040700402", "marks": 75.06, "pctl": 98.82, "rank_csv": 19, "rank_pdf": 21}, {"reg": "SG250022688", "roll_csv": "1180702483", "roll_pdf": "1180702483", "marks": 75.05, "pctl": 98.75, "rank_csv": 20, "rank_pdf": 22}, {"reg": "SG250047767", "roll_csv": "1180702537", "roll_pdf": "1180702537", "marks": 74.37, "pctl": 98.69, "rank_csv": 21, "rank_pdf": 23}, {"reg": "SG250008304", "roll_csv": "1110701171", "roll_pdf": "1110701171", "marks": 74.05, "pctl": 98.62, "rank_csv": 22, "rank_pdf": 24}, {"reg": "SG250060379", "roll_csv": "1140701586", "roll_pdf": "1140701586", "marks": 74.05, "pctl": 98.56, "rank_csv": 23, "rank_pdf": 25}, {"reg": "SG250025067", "roll_csv": "1120701356", "roll_pdf": "1120701356", "marks": 74.04, "pctl": 98.49, "rank_csv": 24, "rank_pdf": 26}, {"reg": "SG250011445", "roll_csv": "1150701678", "roll_pdf": "1150701678", "marks": 72.71, "pctl": 98.1, "rank_csv": 30, "rank_pdf": 27}, {"reg": "SG250050264", "roll_csv": "1170702299", "roll_pdf": "1170702299", "marks": 73.73, "pctl": 98.43, "rank_csv": 25, "rank_pdf": 28}, {"reg": "SG250048685", "roll_csv": "1180702539", "roll_pdf": "1180702539", "marks": 73.38, "pctl": 98.3, "rank_csv": 27, "rank_pdf": 29}, {"reg": "SG250003661", "roll_csv": "1110701164", "roll_pdf": "1110701164", "marks": 71.72, "pctl": 97.71, "rank_csv": 36, "rank_pdf": 30}, {"reg": "SG250004252", "roll_csv": "1110701166", "roll_pdf": "1110701166", "marks": 72.72, "pctl": 98.23, "rank_csv": 28, "rank_pdf": 31}, {"reg": "SG250012532", "roll_csv": "1020700154", "roll_pdf": "1020700154", "marks": 72.71, "pctl": 98.17, "rank_csv": 29, "rank_pdf": 32}, {"reg": "SG250078735", "roll_csv": "1170702346", "roll_pdf": "1170702346", "marks": 72.4, "pctl": 97.97, "rank_csv": 32, "rank_pdf": 33}, {"reg": "SG250000752", "roll_csv": "1170702208", "roll_pdf": "1170702208", "marks": 70.73, "pctl": 97.38, "rank_csv": 41, "rank_pdf": 34}, {"reg": "SG250088645", "roll_csv": "1190702881", "roll_pdf": "1190702881", "marks": 72.05, "pctl": 97.9, "rank_csv": 33, "rank_pdf": 35}, {"reg": "SG250058093", "roll_csv": "1090700995", "roll_pdf": "1090700995", "marks": 70.05, "pctl": 97.05, "rank_csv": 46, "rank_pdf": 36}, {"reg": "SG250149705", "roll_csv": "1010700128", "roll_pdf": "1010700128", "marks": 70.72, "pctl": 97.31, "rank_csv": 42, "rank_pdf": 37}, {"reg": "SG250004482", "roll_csv": "1160701939", "roll_pdf": "1160701939", "marks": 71.73, "pctl": 97.84, "rank_csv": 34, "rank_pdf": 38}, {"reg": "SG250000965", "roll_csv": "1170702210", "roll_pdf": "1170702210", "marks": 70.39, "pctl": 97.25, "rank_csv": 43, "rank_pdf": 39}, {"reg": "SG250058065", "roll_csv": "1170702317", "roll_pdf": "1170702317", "marks": 70.07, "pctl": 97.12, "rank_csv": 45, "rank_pdf": 40}, {"reg": "SG250017812", "roll_csv": "1180702470", "roll_pdf": "1180702470", "marks": 70.05, "pctl": 96.99, "rank_csv": 47, "rank_pdf": 41}, {"reg": "SG250046307", "roll_csv": "1180702534", "roll_pdf": "1180702534", "marks": 70.74, "pctl": 97.44, "rank_csv": 40, "rank_pdf": 42}, {"reg": "SG250004335", "roll_csv": "1150701654", "roll_pdf": "1150701654", "marks": 68.74, "pctl": 96.4, "rank_csv": 56, "rank_pdf": 43}, {"reg": "SG250045668", "roll_csv": "1160702024", "roll_pdf": "1160702024", "marks": 68.74, "pctl": 96.33, "rank_csv": 57, "rank_pdf": 44}, {"reg": "SG250109002", "roll_csv": "1190702912", "roll_pdf": "1190702912", "marks": 68.73, "pctl": 96.2, "rank_csv": 59, "rank_pdf": 45}, {"reg": "SG250068035", "roll_csv": "1080700903", "roll_pdf": "1080700903", "marks": 69.74, "pctl": 96.92, "rank_csv": 48, "rank_pdf": 46}, {"reg": "SG250031831", "roll_csv": "1190702782", "roll_pdf": "1190702782", "marks": 68.4, "pctl": 96.07, "rank_csv": 61, "rank_pdf": 47}, {"reg": "SG250063503", "roll_csv": "1160702066", "roll_pdf": "1160702066", "marks": 68.08, "pctl": 95.74, "rank_csv": 66, "rank_pdf": 48}, {"reg": "SG250003149", "roll_csv": "1040700385", "roll_pdf": "1040700385", "marks": 68.73, "pctl": 96.26, "rank_csv": 58, "rank_pdf": 49}, {"reg": "SG250032359", "roll_csv": "1030700321", "roll_pdf": "1030700321", "marks": 67.07, "pctl": 95.28, "rank_csv": 73, "rank_pdf": 50}, {"reg": "SG250006871", "roll_csv": "1020700143", "roll_pdf": "1020700143", "marks": 68.39, "pctl": 96.0, "rank_csv": 62, "rank_pdf": 51}, {"reg": "SG250095487", "roll_csv": "1110701283", "roll_pdf": "1110701283", "marks": 66.75, "pctl": 95.09, "rank_csv": 76, "rank_pdf": 52}, {"reg": "SG250137903", "roll_csv": "1110701321", "roll_pdf": "1110701321", "marks": 66.73, "pctl": 94.89, "rank_csv": 79, "rank_pdf": 53}, {"reg": "SG250011100", "roll_csv": "1020700145", "roll_pdf": "1020700145", "marks": 66.4, "pctl": 94.63, "rank_csv": 83, "rank_pdf": 54}, {"reg": "SG250057441", "roll_csv": "1170702315", "roll_pdf": "1170702315", "marks": 66.06, "pctl": 94.17, "rank_csv": 90, "rank_pdf": 55}, {"reg": "SG250019764", "roll_csv": "1190702749", "roll_pdf": "1190702749", "marks": 65.4, "pctl": 93.71, "rank_csv": 97, "rank_pdf": 56}, {"reg": "SG250020488", "roll_csv": "1040700411", "roll_pdf": "1040700411", "marks": 66.72, "pctl": 94.82, "rank_csv": 80, "rank_pdf": 57}, {"reg": "SG250050926", "roll_csv": "1180702544", "roll_pdf": "1180702544", "marks": 66.4, "pctl": 94.5, "rank_csv": 85, "rank_pdf": 58}, {"reg": "SG250057888", "roll_csv": "1160702058", "roll_pdf": "1160702058", "marks": 66.4, "pctl": 94.56, "rank_csv": 84, "rank_pdf": 59}, {"reg": "SG250069037", "roll_csv": "1040700449", "roll_pdf": "1040700449", "marks": 63.74, "pctl": 92.73, "rank_csv": 112, "rank_pdf": 60}, {"reg": "SG250049011", "roll_csv": "1160702032", "roll_pdf": "1160702032", "marks": 64.75, "pctl": 93.38, "rank_csv": 102, "rank_pdf": 61}, {"reg": "SG250122183", "roll_csv": "1030700365", "roll_pdf": "1030700365", "marks": 66.07, "pctl": 94.3, "rank_csv": 88, "rank_pdf": 62}, {"reg": "SG250001995", "roll_csv": "1140701539", "roll_pdf": "1140701539", "marks": 62.76, "pctl": 92.01, "rank_csv": 123, "rank_pdf": 63}, {"reg": "SG250045036", "roll_csv": "1080700892", "roll_pdf": "1080700892", "marks": 71.72, "pctl": 97.77, "rank_csv": 35, "rank_pdf": 64}, {"reg": "SG250075224", "roll_csv": "1110701262", "roll_pdf": "1110701262", "marks": 69.05, "pctl": 96.59, "rank_csv": 53, "rank_pdf": 65}, {"reg": "SG250014280", "roll_csv": "1150701687", "roll_pdf": "1150701687", "marks": 66.75, "pctl": 95.02, "rank_csv": 77, "rank_pdf": 66}, {"reg": "SG250066908", "roll_csv": "1050700562", "roll_pdf": "1050700562", "marks": 65.06, "pctl": 93.58, "rank_csv": 99, "rank_pdf": 67}, {"reg": "SG250016518", "roll_csv": "1110701188", "roll_pdf": "1110701188", "marks": 63.39, "pctl": 92.4, "rank_csv": 117, "rank_pdf": 68}, {"reg": "SG250002631", "roll_csv": "1160701932", "roll_pdf": "1160701932", "marks": 64.06, "pctl": 92.86, "rank_csv": 110, "rank_pdf": 69}, {"reg": "SG250010547", "roll_csv": "1150701672", "roll_pdf": "1150701672", "marks": 62.4, "pctl": 91.48, "rank_csv": 131, "rank_pdf": 70}, {"reg": "SG250108705", "roll_csv": "1180702635", "roll_pdf": "1180702635", "marks": 63.4, "pctl": 92.46, "rank_csv": 116, "rank_pdf": 71}, {"reg": "SG250138851", "roll_csv": "1140701638", "roll_pdf": "1140701638", "marks": 62.76, "pctl": 91.94, "rank_csv": 124, "rank_pdf": 72}, {"reg": "SG250103489", "roll_csv": "1160702130", "roll_pdf": "1160702130", "marks": 66.74, "pctl": 94.95, "rank_csv": 78, "rank_pdf": 73}, {"reg": "SG250052977", "roll_csv": "1150701769", "roll_pdf": "1150701769", "marks": 69.05, "pctl": 96.53, "rank_csv": 54, "rank_pdf": 74}, {"reg": "SG250048917", "roll_csv": "1070700793", "roll_pdf": "1070700793", "marks": 67.08, "pctl": 95.35, "rank_csv": 72, "rank_pdf": 75}, {"reg": "SG250027419", "roll_csv": "1110701205", "roll_pdf": "1110701205", "marks": 68.08, "pctl": 95.81, "rank_csv": 65, "rank_pdf": 76}, {"reg": "SG250055669", "roll_csv": "1160702049", "roll_pdf": "1160702049", "marks": 66.41, "pctl": 94.69, "rank_csv": 82, "rank_pdf": 77}, {"reg": "SG250082826", "roll_csv": "1190702870", "roll_pdf": "1190702870", "marks": 66.38, "pctl": 94.43, "rank_csv": 86, "rank_pdf": 78}, {"reg": "SG250111132", "roll_csv": "1110701289", "roll_pdf": "1110701289", "marks": 64.75, "pctl": 93.45, "rank_csv": 101, "rank_pdf": 79}, {"reg": "SG250005456", "roll_csv": "1070700760", "roll_pdf": "1070700760", "marks": 61.41, "pctl": 90.56, "rank_csv": 145, "rank_pdf": 80}, {"reg": "SG250071869", "roll_csv": "1040700451", "roll_pdf": "1040700451", "marks": 60.07, "pctl": 88.53, "rank_csv": 176, "rank_pdf": 81}, {"reg": "SG250100021", "roll_csv": "1040700472", "roll_pdf": "1040700472", "marks": 58.42, "pctl": 86.7, "rank_csv": 204, "rank_pdf": 82}, {"reg": "SG250016613", "roll_csv": "1160701969", "roll_pdf": "1160701969", "marks": 60.75, "pctl": 89.32, "rank_csv": 164, "rank_pdf": 83}, {"reg": "SG250041561", "roll_csv": "1110701220", "roll_pdf": "1110701220", "marks": 62.04, "pctl": 91.09, "rank_csv": 137, "rank_pdf": 84}, {"reg": "SG250023635", "roll_csv": "1190702763", "roll_pdf": "1190702763", "marks": 60.41, "pctl": 88.93, "rank_csv": 170, "rank_pdf": 85}, {"reg": "SG250019027", "roll_csv": "1050700526", "roll_pdf": "1050700526", "marks": 59.06, "pctl": 87.16, "rank_csv": 197, "rank_pdf": 86}, {"reg": "SG250037052", "roll_csv": "1170702278", "roll_pdf": "1170702278", "marks": 60.09, "pctl": 88.66, "rank_csv": 174, "rank_pdf": 87}, {"reg": "SG250002971", "roll_csv": "1180702431", "roll_pdf": "1180702431", "marks": 59.42, "pctl": 87.75, "rank_csv": 188, "rank_pdf": 88}, {"reg": "SG250019741", "roll_csv": "1110701193", "roll_pdf": "1110701193", "marks": 59.09, "pctl": 87.42, "rank_csv": 193, "rank_pdf": 89}, {"reg": "SG250063373", "roll_csv": "1180702562", "roll_pdf": "1180702562", "marks": 56.74, "pctl": 84.4, "rank_csv": 239, "rank_pdf": 90}, {"reg": "SG250109263", "roll_csv": "1190702913", "roll_pdf": "1190702913", "marks": 56.44, "pctl": 84.21, "rank_csv": 242, "rank_pdf": 91}, {"reg": "SG250086409", "roll_csv": "1020700224", "roll_pdf": "1020700224", "marks": 54.76, "pctl": 82.04, "rank_csv": 275, "rank_pdf": 92}, {"reg": "SG250015073", "roll_csv": "1160701963", "roll_pdf": "1160701963", "marks": 56.08, "pctl": 83.55, "rank_csv": 252, "rank_pdf": 93}, {"reg": "SG250014374", "roll_csv": "1150701688", "roll_pdf": "1150701688", "marks": 61.04, "pctl": 89.45, "rank_csv": 162, "rank_pdf": 94}, {"reg": "SG250004958", "roll_csv": "1190702715", "roll_pdf": "1190702715", "marks": 58.76, "pctl": 86.96, "rank_csv": 200, "rank_pdf": 95}, {"reg": "SG250032098", "roll_csv": "1010700038", "roll_pdf": "1010700038", "marks": 49.76, "pctl": 74.51, "rank_csv": 390, "rank_pdf": 96}, {"reg": "SG250068461", "roll_csv": "1180702573", "roll_pdf": "1180702573", "marks": 71.07, "pctl": 97.64, "rank_csv": 37, "rank_pdf": 97}, {"reg": "SG250019246", "roll_csv": "1010700025", "roll_pdf": "1010700025", "marks": 65.4, "pctl": 93.84, "rank_csv": 95, "rank_pdf": 98}, {"reg": "SG250064678", "roll_csv": "1160702070", "roll_pdf": "1160702070", "marks": 64.38, "pctl": 93.18, "rank_csv": 105, "rank_pdf": 99}, {"reg": "SG250007044", "roll_csv": "1100701058", "roll_pdf": "1100701058", "marks": 61.4, "pctl": 90.24, "rank_csv": 150, "rank_pdf": 100}, {"reg": "SG250011918", "roll_csv": "1020700151", "roll_pdf": "1020700151", "marks": 59.42, "pctl": 87.88, "rank_csv": 186, "rank_pdf": 101}, {"reg": "SG250017984", "roll_csv": "1020700162", "roll_pdf": "1020700162", "marks": 58.09, "pctl": 86.17, "rank_csv": 212, "rank_pdf": 102}, {"reg": "SG250040641", "roll_csv": "1150701750", "roll_pdf": "1150701750", "marks": 51.43, "pctl": 77.33, "rank_csv": 347, "rank_pdf": 103}, {"reg": "SG250144191", "roll_csv": "1170702419", "roll_pdf": "1170702419", "marks": 50.76, "pctl": 76.02, "rank_csv": 367, "rank_pdf": 104}];
+let currentPage = 1;
+const vac = {"total": 32, "sc": 7, "st": 1, "obc": 8, "ews": 3, "ur": 13, "level": "Level-4", "group": "C", "advt": "I/08/7/Rectt/2025-26"};
+const callType = "Skill Test";
+
+function loadData() {
+    renderInfo(); renderStats(); renderTable(1);
+}
+
+function renderInfo() {
+    let html = `<span class="call-type-badge" style="background:#e65100">Skill Test</span>`;
+    if (vac.level) {
+        html += `<span class="info-pill">Level-4 / Group C</span>`;
+        html += `<span class="info-pill">Advt: I/08/7/Rectt/2025-26</span>`;
+        html += `<span class="info-pill">Total Vacancies: 32</span>`;
+        html += `<span class="info-pill">Called: 104 candidates</span>`;
+        const cats = `SC ${vac.sc} ST ${vac.st} OBC ${vac.obc} EWS ${vac.ews} UR ${vac.ur}`;
+        html += `<span class="info-pill">${cats}</span>`;
+    }
+    document.getElementById('infoBox').innerHTML = html;
+}
+
+function renderStats() {
+    const marks = allData.map(d => d.marks);
+    const highest = Math.max(...marks);
+    const lowest = Math.min(...marks);
+    const avg = (marks.reduce((a,b) => a+b, 0) / marks.length);
+    const sorted = [...marks].sort((a,b) => a-b);
+    const median = sorted.length % 2 ? sorted[Math.floor(sorted.length/2)] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+    const rollsMatch = allData.filter(d => d.roll_csv === d.roll_pdf).length;
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="label">Total Called</div><div class="value">${allData.length}</div></div>
+        <div class="stat-card"><div class="label">Highest Marks</div><div class="value green">${highest.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Lowest Marks</div><div class="value">${lowest.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Average Marks</div><div class="value">${avg.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Median Marks</div><div class="value">${median.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Rolls Match</div><div class="value green">${rollsMatch} / ${allData.length}</div></div>
+    `;
+}
+
+function renderTable(page) {
+    currentPage = page;
+    const start = (page - 1) * PAGE_SIZE;
+    const end = Math.min(start + PAGE_SIZE, allData.length);
+    const tbody = document.getElementById('allBody');
+    tbody.innerHTML = allData.slice(start, end).map((d, i) => {
+        const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
+        const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${d.roll_csv} <span style="font-size:10px;color:var(--text2)">(PDF: ${d.roll_pdf})</span>`;
+        return `<tr><td><span class="rank-badge">#${start + i + 1}</span></td><td>${d.reg}</td><td class="${rollClass}">${rollDisplay}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}%</td><td>#${d.rank_csv}</td><td>#${d.rank_pdf}</td></tr>`;
+    }).join('');
+    renderPagination();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+    const container = document.getElementById('pagination');
+    let html = `<button onclick="renderTable(1)" ${currentPage===1?'disabled':''}>&laquo;</button>`;
+    for (let p = Math.max(1, currentPage-3); p <= Math.min(totalPages, currentPage+3); p++) {
+        html += `<button onclick="renderTable(${p})" class="${p===currentPage?'active':''}">${p}</button>`;
+    }
+    html += `<button onclick="renderTable(${totalPages})" ${currentPage===totalPages?'disabled':''}>&raquo;</button>`;
+    container.innerHTML = html;
+}
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll_csv.includes(q) || d.roll_pdf.includes(q)) : allData;
+    const tbody = document.getElementById('allBody');
+    if (q) {
+        tbody.innerHTML = filtered.map((d, i) => {
+            const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
+            const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${d.roll_csv} <span style="font-size:10px;color:var(--text2)">(PDF: ${d.roll_pdf})</span>`;
+            return `<tr><td><span class="rank-badge">#${i+1}</span></td><td>${d.reg}</td><td class="${rollClass}">${rollDisplay}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}%</td><td>#${d.rank_csv}</td><td>#${d.rank_pdf}</td></tr>`;
+        }).join('');
+        document.getElementById('pagination').innerHTML = '';
+    } else { renderTable(1); }
+}
+
+function searchCandidate() {
+    const q = document.getElementById('candidateSearchInput').value.trim().toLowerCase();
+    if (!q) return;
+    document.getElementById('searchInput').value = q;
+    filterTable();
+    const el = document.querySelector('.table-wrap');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+loadData();
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => { document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); };
+if (t.checked) document.body.classList.add('dark');
+</script>
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This list shows candidates shortlisted by SGPGIMS for Skill Test. Roll numbers are cross-verified between the official PDF and CSV data. Green roll numbers indicate a match; red indicates a discrepancy between PDF and CSV roll numbers.
+</div>
+<div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
+</body>
+</html>

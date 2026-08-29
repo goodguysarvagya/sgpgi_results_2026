@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draftsman - Called Candidates</title>
+<style>
+:root { --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --hover-bg: #f0f2f8; --input-bg: #fff; --pill-bg: #eef0f6; --pill-text: #1a237e; }
+body.dark { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --hover-bg: #2a2a35; --input-bg: #2a2a2a; --pill-bg: #2a2a3a; --pill-text: #7c8cdb; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: background 0.2s, color 0.2s; }
+.container { max-width: 1200px; margin: 0 auto; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.header-row h1 { font-size: 26px; color: var(--accent); }
+.subtitle { color: var(--text2); margin-bottom: 16px; font-size: 13px; }
+.back-link { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 8px; }
+.back-link:hover { text-decoration: underline; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }
+.toggle input { display: none; }
+.toggle .slider { width: 38px; height: 20px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }
+.toggle .slider::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider::after { left: 21px; }
+.info-box { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; }
+.info-pill { background: var(--pill-bg); color: var(--pill-text); padding: 3px 10px; font-weight: 600; font-size: 11px; }
+.call-type-badge { padding: 4px 12px; font-weight: 700; font-size: 12px; color: #fff; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }
+.stat-card .label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.stat-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--accent); }
+.stat-card .value.green { color: #2e7d32; }
+body.dark .stat-card .value.green { color: #66bb6a; }
+.search-section { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-section input { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; outline: none; }
+.search-section input:focus { border-color: var(--accent); }
+.search-section button { padding: 8px 20px; background: var(--accent); color: var(--surface); border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+.search-section button:hover { background: var(--accent2); }
+.table-wrap { background: var(--surface); padding: 14px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 14px; }
+.table-wrap h3 { font-size: 13px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: var(--accent); color: var(--surface); padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
+tr:hover td { background: var(--hover-bg); }
+.rank-badge { background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }
+.roll-match { color: #2e7d32; font-weight: 600; }
+.roll-diff { color: #c62828; font-weight: 600; }
+.pagination { display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.pagination button { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
+.pagination button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.pagination button:hover:not(.active) { background: var(--hover-bg); }
+.filter-input { padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }
+.filter-input:focus { border-color: var(--accent); }
+.disclaimer { margin-top: 28px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.7; }
+.disclaimer strong { color: var(--accent); }
+.footer { margin-top: 18px; text-align: center; font-size: 11px; color: var(--text2); padding: 12px 0 4px; border-top: 1px solid var(--border); }
+.footer a { color: var(--accent); text-decoration: none; }
+@media (max-width: 720px) { body { padding: 16px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header-row">
+<div><a class="back-link" href="../../index.html">&larr; Back to All Positions</a><h1>Draftsman</h1></div>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
+<p class="subtitle">Called Candidates &mdash; Shortlisted for Document Verification</p>
+
+<div class="info-box" id="infoBox"></div>
+
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="search-section">
+<input id="candidateSearchInput" type="text" placeholder="Enter Registration No or Roll No..." onkeydown="if(event.key==='Enter') searchCandidate()">
+<button onclick="searchCandidate()">Search</button>
+</div>
+
+<div class="table-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+<h3 style="margin:0">All Called Candidates</h3>
+<input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
+</div>
+<table><thead><tr><th>#</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th><th>Rank (CSV)</th><th>Rank (PDF)</th></tr></thead>
+<tbody id="allBody"></tbody></table>
+<div class="pagination" id="pagination"></div>
+</div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allData = [{"reg": "SG250140510", "roll_csv": "1011000007", "roll_pdf": "1011000007", "marks": 52.08, "pctl": 100.0, "rank_csv": 1, "rank_pdf": 1}];
+let currentPage = 1;
+const vac = {"total": 1, "sc": 0, "st": 0, "obc": 0, "ews": 0, "ur": 1, "level": "Level-4", "group": "C", "advt": "I/08/10/Rectt/2025-26"};
+const callType = "Document Verification";
+
+function loadData() {
+    renderInfo(); renderStats(); renderTable(1);
+}
+
+function renderInfo() {
+    let html = `<span class="call-type-badge" style="background:#1a237e">Document Verification</span>`;
+    if (vac.level) {
+        html += `<span class="info-pill">Level-4 / Group C</span>`;
+        html += `<span class="info-pill">Advt: I/08/10/Rectt/2025-26</span>`;
+        html += `<span class="info-pill">Total Vacancies: 1</span>`;
+        html += `<span class="info-pill">Called: 1 candidates</span>`;
+        const cats = `SC ${vac.sc} ST ${vac.st} OBC ${vac.obc} EWS ${vac.ews} UR ${vac.ur}`;
+        html += `<span class="info-pill">${cats}</span>`;
+    }
+    document.getElementById('infoBox').innerHTML = html;
+}
+
+function renderStats() {
+    const marks = allData.map(d => d.marks);
+    const highest = Math.max(...marks);
+    const lowest = Math.min(...marks);
+    const avg = (marks.reduce((a,b) => a+b, 0) / marks.length);
+    const sorted = [...marks].sort((a,b) => a-b);
+    const median = sorted.length % 2 ? sorted[Math.floor(sorted.length/2)] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+    const rollsMatch = allData.filter(d => d.roll_csv === d.roll_pdf).length;
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="label">Total Called</div><div class="value">${allData.length}</div></div>
+        <div class="stat-card"><div class="label">Highest Marks</div><div class="value green">${highest.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Lowest Marks</div><div class="value">${lowest.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Average Marks</div><div class="value">${avg.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Median Marks</div><div class="value">${median.toFixed(2)}</div></div>
+        <div class="stat-card"><div class="label">Rolls Match</div><div class="value green">${rollsMatch} / ${allData.length}</div></div>
+    `;
+}
+
+function renderTable(page) {
+    currentPage = page;
+    const start = (page - 1) * PAGE_SIZE;
+    const end = Math.min(start + PAGE_SIZE, allData.length);
+    const tbody = document.getElementById('allBody');
+    tbody.innerHTML = allData.slice(start, end).map((d, i) => {
+        const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
+        const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${d.roll_csv} <span style="font-size:10px;color:var(--text2)">(PDF: ${d.roll_pdf})</span>`;
+        return `<tr><td><span class="rank-badge">#${start + i + 1}</span></td><td>${d.reg}</td><td class="${rollClass}">${rollDisplay}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}%</td><td>#${d.rank_csv}</td><td>#${d.rank_pdf}</td></tr>`;
+    }).join('');
+    renderPagination();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+    const container = document.getElementById('pagination');
+    let html = `<button onclick="renderTable(1)" ${currentPage===1?'disabled':''}>&laquo;</button>`;
+    for (let p = Math.max(1, currentPage-3); p <= Math.min(totalPages, currentPage+3); p++) {
+        html += `<button onclick="renderTable(${p})" class="${p===currentPage?'active':''}">${p}</button>`;
+    }
+    html += `<button onclick="renderTable(${totalPages})" ${currentPage===totalPages?'disabled':''}>&raquo;</button>`;
+    container.innerHTML = html;
+}
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll_csv.includes(q) || d.roll_pdf.includes(q)) : allData;
+    const tbody = document.getElementById('allBody');
+    if (q) {
+        tbody.innerHTML = filtered.map((d, i) => {
+            const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
+            const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${d.roll_csv} <span style="font-size:10px;color:var(--text2)">(PDF: ${d.roll_pdf})</span>`;
+            return `<tr><td><span class="rank-badge">#${i+1}</span></td><td>${d.reg}</td><td class="${rollClass}">${rollDisplay}</td><td><strong>${d.marks.toFixed(2)}</strong></td><td>${d.pctl.toFixed(2)}%</td><td>#${d.rank_csv}</td><td>#${d.rank_pdf}</td></tr>`;
+        }).join('');
+        document.getElementById('pagination').innerHTML = '';
+    } else { renderTable(1); }
+}
+
+function searchCandidate() {
+    const q = document.getElementById('candidateSearchInput').value.trim().toLowerCase();
+    if (!q) return;
+    document.getElementById('searchInput').value = q;
+    filterTable();
+    const el = document.querySelector('.table-wrap');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+loadData();
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => { document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); };
+if (t.checked) document.body.classList.add('dark');
+</script>
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This list shows candidates shortlisted by SGPGIMS for Document Verification. Roll numbers are cross-verified between the official PDF and CSV data. Green roll numbers indicate a match; red indicates a discrepancy between PDF and CSV roll numbers.
+</div>
+<div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
+</body>
+</html>
