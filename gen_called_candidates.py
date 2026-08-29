@@ -72,6 +72,7 @@ def gen_position_html(pos_name, safe_name, rows, call_type):
         "pctl": r["Percentile"],
         "rank_csv": r["Rank_in_CSV"],
         "rank_pdf": r["Rank_in_PDF"],
+        "rank_change": r["Rank_in_CSV"] - r["Rank_in_PDF"],
     } for r in rows])
 
     vac_json = json.dumps(vac) if vac else "{}"
@@ -124,6 +125,11 @@ tr:hover td {{ background: var(--hover-bg); }}
 .rank-badge {{ background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }}
 .roll-match {{ color: #2e7d32; font-weight: 600; }}
 .roll-diff {{ color: #c62828; font-weight: 600; }}
+.rank-up {{ color: #2e7d32; font-weight: 700; }}
+.rank-down {{ color: #c62828; font-weight: 700; }}
+.rank-same {{ color: var(--text2); }}
+body.dark .rank-up {{ color: #66bb6a; }}
+body.dark .rank-down {{ color: #ef5350; }}
 .pagination {{ display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }}
 .pagination button {{ padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }}
 .pagination button.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
@@ -159,7 +165,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 <h3 style="margin:0">All Called Candidates</h3>
 <input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
 </div>
-<table><thead><tr><th>#</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th><th>Raw Score Rank</th><th>Merit List Rank</th></tr></thead>
+<table><thead><tr><th>#</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th><th>Raw Score Rank</th><th>Merit List Rank</th><th>Change</th></tr></thead>
 <tbody id="allBody"></tbody></table>
 <div class="pagination" id="pagination"></div>
 </div>
@@ -215,7 +221,10 @@ function renderTable(page) {{
     tbody.innerHTML = allData.slice(start, end).map((d, i) => {{
         const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
         const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${{d.roll_csv}} <span style="font-size:10px;color:var(--text2)">(PDF: ${{d.roll_pdf}})</span>`;
-        return `<tr><td><span class="rank-badge">#${{start + i + 1}}</span></td><td>${{d.reg}}</td><td class="${{rollClass}}">${{rollDisplay}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}%</td><td>#${{d.rank_csv}}</td><td>#${{d.rank_pdf}}</td></tr>`;
+        const change = d.rank_change;
+        const changeClass = change > 0 ? 'rank-up' : change < 0 ? 'rank-down' : 'rank-same';
+        const changeText = change > 0 ? `+${{change}}` : change === 0 ? '=' : `${{change}}`;
+        return `<tr><td><span class="rank-badge">#${{start + i + 1}}</span></td><td>${{d.reg}}</td><td class="${{rollClass}}">${{rollDisplay}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}%</td><td>#${{d.rank_csv}}</td><td>#${{d.rank_pdf}}</td><td class="${{changeClass}}">${{changeText}}</td></tr>`;
     }}).join('');
     renderPagination();
 }}
@@ -239,7 +248,10 @@ function filterTable() {{
         tbody.innerHTML = filtered.map((d, i) => {{
             const rollClass = d.roll_csv === d.roll_pdf ? 'roll-match' : 'roll-diff';
             const rollDisplay = d.roll_csv === d.roll_pdf ? d.roll_csv : `${{d.roll_csv}} <span style="font-size:10px;color:var(--text2)">(PDF: ${{d.roll_pdf}})</span>`;
-            return `<tr><td><span class="rank-badge">#${{i+1}}</span></td><td>${{d.reg}}</td><td class="${{rollClass}}">${{rollDisplay}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}%</td><td>#${{d.rank_csv}}</td><td>#${{d.rank_pdf}}</td></tr>`;
+            const change = d.rank_change;
+            const changeClass = change > 0 ? 'rank-up' : change < 0 ? 'rank-down' : 'rank-same';
+            const changeText = change > 0 ? `+${{change}}` : change === 0 ? '=' : `${{change}}`;
+            return `<tr><td><span class="rank-badge">#${{i+1}}</span></td><td>${{d.reg}}</td><td class="${{rollClass}}">${{rollDisplay}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}%</td><td>#${{d.rank_csv}}</td><td>#${{d.rank_pdf}}</td><td class="${{changeClass}}">${{changeText}}</td></tr>`;
         }}).join('');
         document.getElementById('pagination').innerHTML = '';
     }} else {{ renderTable(1); }}
