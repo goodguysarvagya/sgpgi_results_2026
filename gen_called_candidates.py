@@ -120,6 +120,10 @@ body.dark .stat-card .value.green {{ color: #66bb6a; }}
 .table-wrap h3 {{ font-size: 13px; margin-bottom: 8px; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
 th {{ background: var(--accent); color: var(--surface); padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }}
+th.sortable {{ cursor: pointer; user-select: none; position: relative; padding-right: 18px; }}
+th.sortable:hover {{ background: var(--accent2); }}
+.sort-arrow {{ position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 10px; opacity: 0.5; }}
+th.sorted-asc .sort-arrow, th.sorted-desc .sort-arrow {{ opacity: 1; }}
 td {{ padding: 5px 8px; border-bottom: 1px solid var(--border); }}
 tr:hover td {{ background: var(--hover-bg); }}
 .rank-badge {{ background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }}
@@ -165,7 +169,7 @@ body.dark .rank-down {{ color: #ef5350; }}
 <h3 style="margin:0">All Called Candidates</h3>
 <input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
 </div>
-<table><thead><tr><th>#</th><th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th><th>Raw Score Rank</th><th>Merit List Rank</th><th>Change</th></tr></thead>
+<table><thead><tr><th class="sortable" onclick="sortBy('num')">#<span class="sort-arrow" id="sort-num"></span></th><th class="sortable" onclick="sortBy('reg')">Registration No<span class="sort-arrow" id="sort-reg"></span></th><th class="sortable" onclick="sortBy('roll')">Roll No<span class="sort-arrow" id="sort-roll"></span></th><th class="sortable" onclick="sortBy('marks')">Marks<span class="sort-arrow" id="sort-marks"></span></th><th class="sortable" onclick="sortBy('pctl')">Percentile<span class="sort-arrow" id="sort-pctl"></span></th><th class="sortable" onclick="sortBy('rank_csv')">Raw Score Rank<span class="sort-arrow" id="sort-rank_csv"></span></th><th class="sortable" onclick="sortBy('rank_pdf')">Merit List Rank<span class="sort-arrow" id="sort-rank_pdf"></span></th><th class="sortable" onclick="sortBy('rank_change')">Change<span class="sort-arrow" id="sort-rank_change"></span></th></tr></thead>
 <tbody id="allBody"></tbody></table>
 <div class="pagination" id="pagination"></div>
 </div>
@@ -177,6 +181,32 @@ let allData = {rows_json};
 let currentPage = 1;
 const vac = {vac_json};
 const callType = "{call_type}";
+let sortKey = null;
+let sortDir = 1;
+
+function sortBy(key) {{
+    if (sortKey === key) {{ sortDir *= -1; }} else {{ sortKey = key; sortDir = key === 'rank_change' ? -1 : 1; }}
+    document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+    const th = document.querySelector(`th[onclick*="${{key}}"]`);
+    if (th) th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    document.querySelectorAll('.sort-arrow').forEach(s => s.textContent = '');
+    const arrow = document.getElementById('sort-' + key);
+    if (arrow) arrow.textContent = sortDir === 1 ? '▲' : '▼';
+    allData.sort((a, b) => {{
+        let va, vb;
+        if (key === 'reg') {{ va = a.reg; vb = b.reg; }}
+        else if (key === 'roll') {{ va = a.roll_csv; vb = b.roll_csv; }}
+        else if (key === 'marks') {{ va = a.marks; vb = b.marks; }}
+        else if (key === 'pctl') {{ va = a.pctl; vb = b.pctl; }}
+        else if (key === 'rank_csv') {{ va = a.rank_csv; vb = b.rank_csv; }}
+        else if (key === 'rank_pdf') {{ va = a.rank_pdf; vb = b.rank_pdf; }}
+        else if (key === 'rank_change') {{ va = a.rank_change; vb = b.rank_change; }}
+        else {{ return 0; }}
+        if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+        return (va - vb) * sortDir;
+    }});
+    renderTable(1);
+}}
 
 function loadData() {{
     renderInfo(); renderStats(); renderTable(1);
