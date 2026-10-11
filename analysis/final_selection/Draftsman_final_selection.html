@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draftsman - Final Selection</title>
+<style>
+:root { --bg: #e8eaf0; --surface: #fff; --text: #222; --text2: #555; --accent: #1a237e; --accent2: #283593; --border: #d0d4dc; --hover-bg: #f0f2f8; --input-bg: #fff; --pill-bg: #eef0f6; --pill-text: #1a237e; }
+body.dark { --bg: #121212; --surface: #1e1e1e; --text: #e0e0e0; --text2: #aaa; --accent: #7c8cdb; --accent2: #5c6bc0; --border: #333; --hover-bg: #2a2a35; --input-bg: #2a2a2a; --pill-bg: #2a2a3a; --pill-text: #7c8cdb; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: background 0.2s, color 0.2s; }
+.container { max-width: 1400px; margin: 0 auto; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.header-row h1 { font-size: 26px; color: var(--accent); }
+.subtitle { color: var(--text2); margin-bottom: 16px; font-size: 13px; }
+.back-link { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 8px; }
+.back-link:hover { text-decoration: underline; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text2); user-select: none; }
+.toggle input { display: none; }
+.toggle .slider { width: 38px; height: 20px; background: var(--border); position: relative; cursor: pointer; transition: 0.2s; }
+.toggle .slider::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--surface); top: 3px; left: 3px; transition: 0.2s; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider::after { left: 21px; }
+.info-box { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 13px; }
+.info-pill { background: var(--pill-bg); color: var(--pill-text); padding: 3px 10px; font-weight: 600; font-size: 11px; }
+.final-badge { padding: 4px 12px; font-weight: 700; font-size: 12px; color: #fff; background: #2e7d32; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--surface); padding: 14px; text-align: center; border: 1px solid var(--border); }
+.stat-card .label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.stat-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--accent); }
+.stat-card .value.green { color: #2e7d32; }
+.stat-card .value.orange { color: #e65100; }
+.stat-card .value.red { color: #c62828; }
+body.dark .stat-card .value.green { color: #66bb6a; }
+body.dark .stat-card .value.orange { color: #ffb74d; }
+body.dark .stat-card .value.red { color: #ef5350; }
+.status-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.status-filter button { padding: 6px 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 600; }
+.status-filter button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.search-section { background: var(--surface); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-section input { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; outline: none; }
+.search-section input:focus { border-color: var(--accent); }
+.search-section button { padding: 8px 20px; background: var(--accent); color: var(--surface); border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+.search-section button:hover { background: var(--accent2); }
+.table-wrap { background: var(--surface); padding: 14px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 14px; }
+.table-wrap h3 { font-size: 13px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: var(--accent); color: var(--surface); padding: 7px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
+th.sortable { cursor: pointer; user-select: none; position: relative; padding-right: 18px; }
+th.sortable:hover { background: var(--accent2); }
+.sort-arrow { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 10px; opacity: 0.5; }
+th.sorted-asc .sort-arrow, th.sorted-desc .sort-arrow { opacity: 1; }
+td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: var(--hover-bg); }
+.rank-badge { background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }
+.st { padding: 2px 8px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.st-selected { background: #2e7d32; color: #fff; }
+.st-clarification { background: #e65100; color: #fff; }
+.st-rejected { background: #c62828; color: #fff; }
+.st-other { background: var(--pill-bg); color: var(--pill-text); }
+.remark-cell { max-width: 280px; font-size: 11px; color: var(--text2); }
+.reg-diff { color: #c62828; font-weight: 700; }
+.note-box { background: var(--surface); padding: 12px 16px; border: 1px solid var(--border); margin-bottom: 14px; font-size: 12px; color: var(--text2); line-height: 1.7; }
+.note-box strong { color: var(--accent); }
+.filter-input { padding: 7px 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 12px; width: 240px; outline: none; }
+.filter-input:focus { border-color: var(--accent); }
+.disclaimer { margin-top: 28px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.7; }
+.disclaimer strong { color: var(--accent); }
+.footer { margin-top: 18px; text-align: center; font-size: 11px; color: var(--text2); padding: 12px 0 4px; border-top: 1px solid var(--border); }
+.footer a { color: var(--accent); text-decoration: none; }
+@media (max-width: 720px) { body { padding: 16px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header-row">
+<div><a class="back-link" href="../../index.html">&larr; Back to All Positions</a><h1>Draftsman</h1><div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;"><a class="back-link" href="../combined/Draftsman_analysis.html">&larr; Full Score Analysis</a><a class="back-link" href="../called_candidates/Draftsman_called_candidates.html" style="color:#e65100;">View Called Candidates &rarr;</a></div></div>
+<label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+</div>
+<p class="subtitle">Final Selection &mdash; Selection Committee Recommendation (Exam Date: 19.06.2026)</p>
+
+<div class="info-box" id="infoBox"></div>
+
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="note-box" id="xcheckBox" style="display:none"></div>
+
+<div class="status-filter" id="statusFilter">
+<button class="active" onclick="setStatus('all')">All (1)</button>
+<button onclick="setStatus('selected')">Appointment Issued (1)</button>
+<button onclick="setStatus('clarification')">Clarification (0)</button>
+<button onclick="setStatus('rejected')">Not Eligible (0)</button>
+</div>
+
+<div class="search-section">
+<input id="candidateSearchInput" type="text" placeholder="Enter Registration No or Roll No..." onkeydown="if(event.key==='Enter') searchCandidate()">
+<button onclick="searchCandidate()">Search</button>
+</div>
+
+<div class="table-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+<h3 style="margin:0" id="tableTitle">All Candidates in Final List</h3>
+<input id="searchInput" type="text" placeholder="Filter by Reg No, Roll No or name..." class="filter-input" oninput="filterTable()">
+</div>
+<table><thead><tr><th>Sr</th><th>Status</th><th class="sortable" onclick="sortBy('roll')">Roll No<span class="sort-arrow" id="sort-roll"></span></th><th class="sortable" onclick="sortBy('reg')">Registration No<span class="sort-arrow" id="sort-reg"></span></th><th>DOB</th><th>Gender</th><th>Applicant Cat</th><th>Selection Cat</th><th>Recommendation</th><th>Remarks</th><th class="sortable" onclick="sortBy('marks')">Raw Marks<span class="sort-arrow" id="sort-marks"></span></th><th class="sortable" onclick="sortBy('rank')">Raw Rank<span class="sort-arrow" id="sort-rank"></span></th></tr></thead>
+<tbody id="allBody"></tbody></table>
+</div>
+</div>
+
+<script>
+let allData = [{"sr": 1, "roll": "1011000007", "reg": "SG250140510", "dob": "05/04/1997", "gender": "Male", "appcat": "UR", "selcat": "UR", "reco": "Eligible & Selected", "remarks": "Appointment letter issued", "status": "selected", "marks": 52.08, "pctl": 100.0, "rank": 1, "called_rank": 1, "reg_match": true}];
+let statusFilter = 'all';
+let sortKey = null;
+let sortDir = 1;
+const vac = {"total": 1, "sc": 0, "st": 0, "obc": 0, "ews": 0, "ur": 1, "level": "Level-4", "group": "C", "advt": "I/08/10/Rectt/2025-26"};
+
+function statusBadge(s) {
+    if (s === 'selected') return '<span class="st st-selected">Appointment Issued</span>';
+    if (s === 'clarification') return '<span class="st st-clarification">Clarification</span>';
+    if (s === 'rejected') return '<span class="st st-rejected">Not Eligible</span>';
+    return '<span class="st st-other">' + s + '</span>';
+}
+
+function setStatus(s) {
+    statusFilter = s;
+    document.querySelectorAll('#statusFilter button').forEach(b => b.classList.remove('active'));
+    const btns = document.querySelectorAll('#statusFilter button');
+    const idx = s === 'all' ? 0 : s === 'selected' ? 1 : s === 'clarification' ? 2 : 3;
+    if (btns[idx]) btns[idx].classList.add('active');
+    document.getElementById('searchInput').value = '';
+    renderTable();
+}
+
+function sortBy(key) {
+    if (sortKey === key) { sortDir *= -1; } else { sortKey = key; sortDir = 1; }
+    document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+    document.querySelectorAll('.sort-arrow').forEach(s => s.textContent = '');
+    const arrow = document.getElementById('sort-' + key);
+    if (arrow) arrow.textContent = sortDir === 1 ? '▲' : '▼';
+    const th = document.querySelector(`th[onclick*="${key}"]`);
+    if (th) th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    allData.sort((a, b) => {
+        let va = a[key], vb = b[key];
+        if (va === null || va === undefined) return 1 * sortDir;
+        if (vb === null || vb === undefined) return -1 * sortDir;
+        if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+        return (va - vb) * sortDir;
+    });
+    renderTable();
+}
+
+function filteredData() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    let rows = statusFilter === 'all' ? allData : allData.filter(d => d.status === statusFilter);
+    if (q) rows = rows.filter(d => d.reg.toLowerCase().includes(q) || d.roll.includes(q) || (d.remarks || '').toLowerCase().includes(q));
+    return rows;
+}
+
+function loadData() {
+    renderInfo(); renderStats(); renderXcheck(); renderTable();
+}
+
+function renderInfo() {
+    let html = `<span class="final-badge">FINAL SELECTION</span>`;
+    html += `<span class="info-pill">Level-4 / Group C</span>`;
+    html += `<span class="info-pill">Advt: I/08/10/Rectt/2025-26</span>`;
+    html += `<span class="info-pill">Exam: 19.06.2026</span>`;
+    html += `<span class="info-pill">Total Vacancies: 1</span>`;
+    html += `<span class="info-pill">In final list: 1</span>`;
+    document.getElementById('infoBox').innerHTML = html;
+}
+
+function renderStats() {
+    const sel = allData.filter(d => d.status === 'selected').length;
+    const clar = allData.filter(d => d.status === 'clarification').length;
+    const rej = allData.filter(d => d.status === 'rejected').length;
+    const marks = allData.map(d => d.marks).filter(v => v !== null && v !== undefined);
+    const avg = marks.length ? (marks.reduce((a,b) => a+b, 0) / marks.length).toFixed(2) : '-';
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="label">In Final List</div><div class="value">${allData.length}</div></div>
+        <div class="stat-card"><div class="label">Appointment Issued</div><div class="value green">${sel}</div></div>
+        <div class="stat-card"><div class="label">Clarification Needed</div><div class="value orange">${clar}</div></div>
+        <div class="stat-card"><div class="label">Not Eligible</div><div class="value red">${rej}</div></div>
+        <div class="stat-card"><div class="label">Avg Raw Marks (listed)</div><div class="value">${avg}</div></div>
+    `;
+}
+
+function renderXcheck() {
+    const box = document.getElementById('xcheckBox');
+    const notCalled = allData.filter(d => d.called_rank === null || d.called_rank === undefined);
+    const missed = (window.__calledMissing || []);
+    if (!notCalled.length && !missed.length) { box.style.display = 'none'; return; }
+    let html = '<strong>Cross-check vs called-for-DV list:</strong><br>';
+    if (notCalled.length) html += `In final list but NOT in called list: <strong>${notCalled.map(d => d.roll).join(', ')}</strong><br>`;
+    if (missed.length) html += `Called for DV but NOT in final list: <strong>${missed.join(', ')}</strong>`;
+    box.innerHTML = html;
+    box.style.display = 'block';
+}
+
+function renderTable() {
+    const rows = filteredData();
+    const titles = { all: 'All Candidates in Final List', selected: 'Appointment Issued', clarification: 'Clarification Needed', rejected: 'Not Eligible' };
+    document.getElementById('tableTitle').textContent = titles[statusFilter] + ` (${rows.length})`;
+    const tbody = document.getElementById('allBody');
+    tbody.innerHTML = rows.map(d => {
+        const regCell = d.reg_match === false ? `<span class="reg-diff">${d.reg} ⚠</span>` : d.reg;
+        const marksCell = (d.marks === null || d.marks === undefined) ? '-' : `<strong>${d.marks.toFixed(2)}</strong>`;
+        const rankCell = (d.rank === null || d.rank === undefined) ? '-' : `<span class="rank-badge">#${d.rank}</span>`;
+        return `<tr><td>${d.sr}</td><td>${statusBadge(d.status)}</td><td>${d.roll}</td><td>${regCell}</td><td>${d.dob}</td><td>${d.gender}</td><td>${d.appcat}</td><td>${d.selcat}</td><td>${d.reco}</td><td class="remark-cell">${d.remarks}</td><td>${marksCell}</td><td>${rankCell}</td></tr>`;
+    }).join('');
+}
+
+function filterTable() {
+    renderTable();
+}
+
+function searchCandidate() {
+    const q = document.getElementById('candidateSearchInput').value.trim().toLowerCase();
+    if (!q) return;
+    document.getElementById('searchInput').value = q;
+    renderTable();
+    const el = document.querySelector('.table-wrap');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+window.__calledMissing = [];
+loadData();
+const t = document.getElementById('darkToggle');
+const m = window.matchMedia('(prefers-color-scheme:dark)');
+t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
+t.onchange = () => { document.body.classList.toggle('dark', t.checked); localStorage.setItem('dark', t.checked ? '1' : '0'); };
+if (t.checked) document.body.classList.add('dark');
+</script>
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This page transcribes the official SGPGIMS Selection Committee list (source PDF: Draftsman_0001.pdf; list is explicitly <strong>not in order of rank or category</strong>). Raw marks/ranks shown are joined from this site's raw-score data for reference — the official merit is the Selection Committee's recommendation. Appointment letters are issued only to candidates marked Eligible &amp; Selected.
+</div>
+<div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
+</body>
+</html>

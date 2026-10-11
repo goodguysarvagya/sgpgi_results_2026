@@ -28,6 +28,50 @@ VACANCIES = {
 def safe(n):
     return re.sub(r'[^\w\s-]', '', n).strip().replace(' ', '_').replace('.', '')
 
+# Normalized-score PDFs (overlay, NOT new exam days — do NOT add to `pdfs` list).
+# Maps official subject name -> PDF containing Roll | Raw | Normalised columns.
+NORM_PDFS = {
+    "Nursing Officer": r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Raw_Score_Nursing_Officer (4)_071026.pdf",
+    "Hospital Attendant Gr-II": r"C:\Users\Sarvagya\Desktop\sgpgi_data\raw\Raw_Score_Hospital_Attendant_Grade-II (3)_071026.pdf",
+}
+
+def load_normalized_scores():
+    """Parse each PDF in NORM_PDFS -> {subject: {roll_no: normalised_score}}."""
+    maps = {}
+    pat = re.compile(r'(?m)^\s*(\d+)\s*\n\s*(\d{10})\s*\n\s*(-?\d+(?:\.\d+)?)\s*\n\s*(-?\d+(?:\.\d+)?)')
+    for subj, pdf_path in NORM_PDFS.items():
+        try:
+            doc = fitz.open(pdf_path)
+        except Exception as e:
+            print(f"  [Norm] WARNING: could not open {pdf_path}: {e}")
+            continue
+        full = ""
+        for page in doc:
+            full += page.get_text() + "\n"
+        d = {}
+        for m in pat.finditer(full):
+            _sno, roll, _raw, norm = m.groups()
+            d[roll] = float(norm)
+        maps[subj] = d
+        print(f"  [Norm] {subj}: {len(d)} normalised records from {Path(pdf_path).name}")
+    return maps
+
+NORM_MAPS = {}
+
+def load_final_manifest():
+    """Read data/final_selection/_manifest.json (written by gen_final_selection.py)."""
+    mp = out_dir / "data" / "final_selection" / "_manifest.json"
+    if not mp.exists():
+        return {}
+    try:
+        with open(mp, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"  [Final] WARNING: could not read manifest: {e}")
+        return {}
+
+FINAL_MANIFEST = {}
+
 def process_and_export(subj_name, safe_name, records, filename_tag, source_label, is_combined=True):
     sorted_recs = sorted(records, key=lambda x: x["Marks"], reverse=True)
     for i, r in enumerate(sorted_recs):
@@ -35,6 +79,37 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
     total = len(sorted_recs)
     for r in sorted_recs:
         r["Percentile"] = round((1 - (r["Rank"] - 1) / total) * 100, 2)
+
+    # --- Normalization overlay (if available for this subject) ---
+    norm_dict = NORM_MAPS.get(subj_name, {})
+    has_norm = bool(norm_dict) and any(r.get("Roll_No") in norm_dict for r in sorted_recs)
+    if has_norm:
+        for r in sorted_recs:
+            nv = norm_dict.get(r.get("Roll_No"))
+            if nv is None:
+                r["Normalized"] = None
+                r["Delta"] = None
+            else:
+                r["Normalized"] = round(nv, 2)
+                r["Delta"] = round(nv - r["Marks"], 2)
+        # Norm rank / percentile within this record set (global for combined, within-day for per-day)
+        with_norm = [r for r in sorted_recs if r["Normalized"] is not None]
+        with_norm_sorted = sorted(with_norm, key=lambda x: x["Normalized"], reverse=True)
+        for i, r in enumerate(with_norm_sorted):
+            r["Norm_Rank"] = i + 1
+        tn = len(with_norm_sorted)
+        for r in with_norm_sorted:
+            r["Norm_Percentile"] = round((1 - (r["Norm_Rank"] - 1) / tn) * 100, 2) if tn else 0
+        for r in sorted_recs:
+            if r.get("Norm_Rank") is None:
+                r["Norm_Rank"] = ""
+                r["Norm_Percentile"] = ""
+    else:
+        for r in sorted_recs:
+            r.pop("Normalized", None)
+            r.pop("Delta", None)
+            r.pop("Norm_Rank", None)
+            r.pop("Norm_Percentile", None)
 
     sorted_by_roll = sorted(sorted_recs, key=lambda x: int(x["Roll_No"]))
 
@@ -49,9 +124,25 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
 
     csv_path = csv_dir / f"{filename_tag}_analysis.csv"
     with open(csv_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["Day", "Exam_Date", "Rank", "Registration_No", "Roll_No", "Marks", "Percentile"])
-        writer.writeheader()
-        writer.writerows(sorted_by_roll)
+        if has_norm:
+            fieldnames = ["Day", "Exam_Date", "Rank", "Registration_No", "Roll_No", "Marks",
+                          "Normalized_Score", "Delta", "Norm_Rank", "Norm_Percentile", "Percentile"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for r in sorted_by_roll:
+                writer.writerow({
+                    "Day": r.get("Day", ""), "Exam_Date": r.get("Exam_Date", ""),
+                    "Rank": r["Rank"], "Registration_No": r["Registration_No"],
+                    "Roll_No": r["Roll_No"], "Marks": r["Marks"],
+                    "Normalized_Score": "" if r["Normalized"] is None else f'{r["Normalized"]:.2f}',
+                    "Delta": "" if r["Delta"] is None else f'{r["Delta"]:+.2f}',
+                    "Norm_Rank": r["Norm_Rank"], "Norm_Percentile": r["Norm_Percentile"],
+                    "Percentile": r["Percentile"],
+                })
+        else:
+            writer = csv.DictWriter(f, fieldnames=["Day", "Exam_Date", "Rank", "Registration_No", "Roll_No", "Marks", "Percentile"])
+            writer.writeheader()
+            writer.writerows(sorted_by_roll)
 
     marks_list = [r["Marks"] for r in sorted_recs]
     sorted_desc = sorted(marks_list, reverse=True)
@@ -80,6 +171,35 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
             if r <= total:
                 mc = sorted_recs[r - 1]
                 mult_cutoffs[f"{mult}x"] = {"rank": r, "marks": mc["Marks"], "pctl": mc["Percentile"]}
+    # --- Normalised-score summary stats + normalised cutoff ---
+    norm_stats = {}
+    norm_cutoff_marks = None; norm_cutoff_rank = None
+    if has_norm:
+        norms = [r["Normalized"] for r in sorted_recs if r["Normalized"] is not None]
+        deltas = [r["Delta"] for r in sorted_recs if r["Delta"] is not None]
+        if norms:
+            n_sorted = sorted(norms, reverse=True)
+            n_avg = sum(norms) / len(norms)
+            n_asc = sorted(norms)
+            n_med = n_asc[len(n_asc)//2] if len(n_asc) % 2 else (n_asc[len(n_asc)//2-1]+n_asc[len(n_asc)//2])/2
+            inc = sum(1 for d in deltas if d > 0.001)
+            dec = sum(1 for d in deltas if d < -0.001)
+            same = len(deltas) - inc - dec
+            norm_stats = {
+                "highest": round(max(norms), 2), "lowest": round(min(norms), 2),
+                "average": round(n_avg, 2), "median": round(n_med, 2),
+                "avg_delta": round(sum(deltas)/len(deltas), 3) if deltas else 0,
+                "max_inc": round(max(deltas), 2) if deltas else 0,
+                "max_dec": round(min(deltas), 2) if deltas else 0,
+                "inc": inc, "dec": dec, "same": same,
+            }
+        if vac_total > 0:
+            by_norm = sorted([r for r in sorted_recs if r["Normalized"] is not None],
+                             key=lambda x: x["Normalized"], reverse=True)
+            if vac_total <= len(by_norm):
+                nc = by_norm[vac_total - 1]
+                norm_cutoff_marks = nc["Normalized"]
+                norm_cutoff_rank = nc["Norm_Rank"]
     stats = {
         "name": subj_name, "total": total,
         "highest": round(max(marks_list), 2), "lowest": round(min(marks_list), 2),
@@ -90,7 +210,10 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
         "ews": vac.get("ews", 0), "ur": vac.get("ur", 0),
         "level": vac.get("level", ""), "group": vac.get("group", ""),
         "cutoff_marks": cutoff_marks, "cutoff_pctl": cutoff_pctl,
-        "mult_cutoffs": mult_cutoffs
+        "mult_cutoffs": mult_cutoffs,
+        "has_norm": has_norm,
+        "norm": norm_stats,
+        "norm_cutoff_marks": norm_cutoff_marks, "norm_cutoff_rank": norm_cutoff_rank,
     }
 
     days_count = len(set(r.get("Day", "") for r in sorted_recs))
@@ -101,15 +224,28 @@ def process_and_export(subj_name, safe_name, records, filename_tag, source_label
 
 def gen_html(subj_name, safe_name, sorted_recs, stats, filename_tag, source_label, csv_rel, html_dir, show_day_col="true"):
     total = stats["total"]
+    has_norm = bool(stats.get("has_norm"))
     day_th = "<th>Day</th>" if show_day_col == "true" else ""
+    norm_th = "<th>Normalised</th><th>Change</th><th>Norm Rank</th>" if has_norm else ""
     all_json = json.dumps([{
         "rank": r["Rank"], "day": r.get("Day", ""),
         "reg": r["Registration_No"], "roll": r["Roll_No"],
-        "marks": r["Marks"], "pctl": r["Percentile"]
+        "marks": r["Marks"], "pctl": r["Percentile"],
+        "norm": r.get("Normalized"), "delta": r.get("Delta"),
+        "nrank": r.get("Norm_Rank") if isinstance(r.get("Norm_Rank"), int) else None,
+        "npctl": r.get("Norm_Percentile") if isinstance(r.get("Norm_Percentile"), (int, float)) else None,
     } for r in sorted_recs])
     cutoffs_json = json.dumps(stats["cutoffs"])
     header_suffix = f" ({source_label})" if source_label != "Combined" else ""
     back_link = "../../index.html"
+    norm_badge = ' <span style="background:#2e7d32;color:#fff;font-size:11px;padding:2px 8px;font-weight:700;vertical-align:middle;">NORMALISED ✓</span>' if has_norm else ""
+    subtitle_text = "SGPGIMS Raw + Normalised Score Analysis (official SGPGIMS normalisation PDF)" if has_norm else "SGPGIMS Raw Score Analysis"
+    disclaimer_extra = " Raw and <strong>normalised scores with change (Normalised − Raw)</strong> are taken from the official SGPGIMS normalisation PDFs; merit is based on the normalised score." if has_norm else ""
+    if subj_name in FINAL_MANIFEST:
+        fsafe = FINAL_MANIFEST[subj_name]["safe"]
+        final_link = f'<a class="back-link" href="../final_selection/{fsafe}_final_selection.html" style="margin-left:12px;color:#2e7d32;">View Final Selection ✓ &rarr;</a>'
+    else:
+        final_link = ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -193,6 +329,15 @@ td {{ padding: 5px 8px; border-bottom: 1px solid var(--border); }}
 tr:hover td {{ background: var(--hover-bg); }}
 .rank-badge {{ background: var(--accent); color: var(--surface); padding: 1px 6px; font-size: 11px; font-weight: 600; }}
 .day-badge {{ background: var(--hover-bg); color: var(--accent); padding: 1px 6px; font-size: 10px; font-weight: 600; }}
+.delta-up {{ color: #2e7d32; font-weight: 700; }}
+.delta-down {{ color: #c62828; font-weight: 700; }}
+.delta-same {{ color: var(--text2); }}
+body.dark .delta-up {{ color: #66bb6a; }}
+body.dark .delta-down {{ color: #ef5350; }}
+.norm-rank-badge {{ background: #2e7d32; color: #fff; padding: 1px 6px; font-size: 11px; font-weight: 600; }}
+.norm-box {{ background: #e8f5e9; border: 1px solid #2e7d32; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; color: #1b5e20; line-height: 1.7; }}
+body.dark .norm-box {{ background: #1b2b1d; border-color: #66bb6a; color: #c8e6c9; }}
+.norm-box strong {{ font-weight: 700; }}
 .pagination {{ display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }}
 .pagination button {{ padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }}
 .pagination button.active {{ background: var(--accent); color: var(--surface); border-color: var(--accent); }}
@@ -209,10 +354,12 @@ tr:hover td {{ background: var(--hover-bg); }}
 <body>
 <div class="container">
 <div class="header-row">
-<div><a class="back-link" href="{back_link}">&larr; Back to All Positions</a><h1>{subj_name}{header_suffix}</h1><a class="back-link" href="../called_candidates/{safe_name}_called_candidates.html" style="margin-left:12px;color:#e65100;">View Called Candidates &rarr;</a></div>
+<div><a class="back-link" href="{back_link}">&larr; Back to All Positions</a><h1>{subj_name}{header_suffix}{norm_badge}</h1><a class="back-link" href="../called_candidates/{safe_name}_called_candidates.html" style="margin-left:12px;color:#e65100;">View Called Candidates &rarr;</a>{final_link}</div>
 <label class="toggle"><span>Dark</span><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
 </div>
-<p class="subtitle">SGPGIMS Raw Score Analysis</p>
+<p class="subtitle">{subtitle_text} &nbsp;|&nbsp; <a href="{csv_rel}" style="color:var(--accent)">Download CSV</a></p>
+
+<div class="norm-box" id="normBox" style="display:none"></div>
 
 <div class="vacancy-box" id="vacancyBox"></div>
 
@@ -250,6 +397,9 @@ tr:hover td {{ background: var(--hover-bg); }}
 <div class="chart-box"><h3>Top 20 Rankers</h3><canvas id="topChart"></canvas></div>
 <div class="chart-box"><h3>Percentile Cutoffs</h3><canvas id="cutoffChart"></canvas></div>
 </div>
+<div class="charts-row" id="deltaChartRow" style="display:none">
+<div class="chart-box full"><h3>Normalisation Change Distribution (Normalised − Raw)</h3><canvas id="deltaChart"></canvas></div>
+</div>
 <div class="table-wrap full">
 <h3>Percentile Cutoff Table</h3>
 <table><thead><tr><th>Rank Group</th><th>Minimum Marks</th></tr></thead>
@@ -260,7 +410,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 <div id="tab-top100" class="tab-content">
 <div class="table-wrap">
 <h3>Top 100 Candidates</h3>
-<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Raw</th>{norm_th}<th>Percentile</th></tr></thead>
 <tbody id="top100Body"></tbody></table>
 </div>
 </div>
@@ -271,7 +421,7 @@ tr:hover td {{ background: var(--hover-bg); }}
 <h3 style="margin:0">All Candidates</h3>
 <input id="searchInput" type="text" placeholder="Filter by Reg No or Roll No..." class="filter-input" oninput="filterTable()">
 </div>
-<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Marks</th><th>Percentile</th></tr></thead>
+<table><thead><tr><th>Rank</th>{day_th}<th>Registration No</th><th>Roll No</th><th>Raw</th>{norm_th}<th>Percentile</th></tr></thead>
 <tbody id="allBody"></tbody></table>
 <div class="pagination" id="pagination"></div>
 </div>
@@ -287,9 +437,41 @@ const cutoffs = {cutoffs_json};
 const showDay = {show_day_col};
 
 function loadData() {{
-renderVacancy(); renderStats(); renderDistChart(); renderPctlChart();
+renderVacancy(); renderNormBox(); renderStats(); renderDistChart(); renderPctlChart();
 renderTopChart(); renderCutoffChart(); renderCutoffTable();
+if (stats.has_norm) renderDeltaChart();
 renderTop100(); renderTable(1);
+}}
+
+function deltaCell(d) {{
+if (d.delta === null || d.delta === undefined) return '<td>-</td>';
+const cls = d.delta > 0.001 ? 'delta-up' : d.delta < -0.001 ? 'delta-down' : 'delta-same';
+const txt = d.delta > 0.001 ? `+${{d.delta.toFixed(2)}}` : d.delta.toFixed(2);
+return `<td class="${{cls}}">${{txt}}</td>`;
+}}
+
+function normCells(d) {{
+if (!stats.has_norm) return '';
+const n = (d.norm === null || d.norm === undefined) ? '-' : `<strong>${{d.norm.toFixed(2)}}</strong>`;
+const nr = (d.nrank === null || d.nrank === undefined) ? '-' : `<span class="norm-rank-badge">#${{d.nrank}}</span>`;
+return `<td>${{n}}</td>` + deltaCell(d) + `<td>${{nr}}</td>`;
+}}
+
+function renderNormBox() {{
+const box = document.getElementById('normBox');
+if (!stats.has_norm || !stats.norm || !Object.keys(stats.norm).length) {{ box.style.display = 'none'; return; }}
+const n = stats.norm;
+const tot = stats.total;
+const pct = (c) => (c/tot*100).toFixed(1);
+box.style.display = 'block';
+box.innerHTML = `<strong>Normalisation applied (official SGPGIMS PDF):</strong> `
++ `Avg change <strong>${{n.avg_delta >= 0 ? '+' : ''}}${{n.avg_delta}}</strong> &nbsp;|&nbsp; `
++ `Increased: <strong>${{n.inc}}</strong> (${{pct(n.inc)}}%) &nbsp;|&nbsp; `
++ `Decreased: <strong>${{n.dec}}</strong> (${{pct(n.dec)}}%) &nbsp;|&nbsp; `
++ `Unchanged: <strong>${{n.same}}</strong> &nbsp;|&nbsp; `
++ `Max gain <strong style="color:#2e7d32">+${{n.max_inc}}</strong> / Max loss <strong style="color:#c62828">${{n.max_dec}}</strong> &nbsp;|&nbsp; `
++ `Normalised avg <strong>${{n.average}}</strong> (raw avg ${{stats.average}})`;
+document.getElementById('deltaChartRow').style.display = '';
 }}
 
 function renderVacancy() {{
@@ -301,7 +483,10 @@ let html = `
 <span class="vac-tag">Total Vacancies: ${{v.vac_total}}</span>
 <span class="vac-cat"><span>SC ${{v.sc}}</span><span>ST ${{v.st}}</span><span>OBC ${{v.obc}}</span><span>EWS ${{v.ews}}</span><span>UR ${{v.ur}}</span></span>`;
 if (v.cutoff_marks !== null) {{
-html += `<br><span class="cutoff-line">Expected Cutoff (approx): <strong>${{v.cutoff_marks.toFixed(2)}}</strong> marks &nbsp;|&nbsp; Percentile: <strong>${{v.cutoff_pctl}}</strong> (at rank #${{v.vac_total}})</span>`;
+html += `<br><span class="cutoff-line">Expected Cutoff (raw, approx): <strong>${{v.cutoff_marks.toFixed(2)}}</strong> marks &nbsp;|&nbsp; Percentile: <strong>${{v.cutoff_pctl}}</strong> (at rank #${{v.vac_total}})</span>`;
+}}
+if (v.has_norm && v.norm_cutoff_marks !== null && v.norm_cutoff_marks !== undefined) {{
+html += `<br><span class="cutoff-line" style="border-top:none;padding-top:0;">Expected Cutoff (<strong>normalised</strong>, approx — official merit uses this): <strong>${{v.norm_cutoff_marks.toFixed(2)}}</strong> (at norm rank #${{v.norm_cutoff_rank}})</span>`;
 }}
 if (v.mult_cutoffs && Object.keys(v.mult_cutoffs).length) {{
 html += `<br><span class="cutoff-line">Paper II qualification cutoffs (estimated): `;
@@ -373,12 +558,34 @@ options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 1.6, plugi
 }});
 }}
 
+function renderDeltaChart() {{
+if (!stats.has_norm) return;
+const deltas = allData.map(d => d.delta).filter(v => v !== null && v !== undefined);
+if (!deltas.length) return;
+const mn = Math.floor(Math.min(...deltas) * 2) / 2;
+const mx = Math.ceil(Math.max(...deltas) * 2) / 2;
+const binSize = 0.5;
+const bins = [];
+for (let s = mn; s < mx; s += binSize) bins.push({{ label: `${{s.toFixed(1)}} to ${{(s+binSize).toFixed(1)}}`, count: 0, start: s }});
+deltas.forEach(dv => {{
+const idx = Math.min(bins.length - 1, Math.max(0, Math.floor((dv - mn) / binSize)));
+bins[idx].count++;
+}});
+new Chart(document.getElementById('deltaChart'), {{
+type: 'bar',
+data: {{ labels: bins.map(b => b.label), datasets: [{{ label: 'Candidates', data: bins.map(b => b.count),
+backgroundColor: bins.map(b => b.start >= 0 ? 'rgba(46,125,50,0.7)' : 'rgba(198,40,40,0.7)'),
+borderColor: bins.map(b => b.start >= 0 ? '#2e7d32' : '#c62828'), borderWidth: 1 }}] }},
+options: {{ responsive: true, maintainAspectRatio: true, aspectRatio: 3, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ title: {{ display: true, text: 'Change (Normalised − Raw)' }} }}, y: {{ title: {{ display: true, text: 'Candidates' }}, beginAtZero: true }} }} }}
+}});
+}}
+
 function renderCutoffTable() {{
 document.getElementById('cutoffTableBody').innerHTML = Object.entries(cutoffs).map(([k,v]) => `<tr><td><strong>${{k}}</strong></td><td>${{v}}</td></tr>`).join('');
 }}
 
 function renderTop100() {{
-document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+document.getElementById('top100Body').innerHTML = allData.slice(0, 100).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td>${{stats.has_norm?normCells(d):''}}<td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 }}
 
 function renderTable(page) {{
@@ -386,7 +593,7 @@ currentPage = page;
 const start = (page - 1) * PAGE_SIZE;
 const end = Math.min(start + PAGE_SIZE, allData.length);
 const tbody = document.getElementById('allBody');
-tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+tbody.innerHTML = allData.slice(start, end).map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td>${{stats.has_norm?normCells(d):''}}<td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 renderPagination();
 }}
 
@@ -406,7 +613,7 @@ const q = document.getElementById('searchInput').value.toLowerCase();
 const filtered = q ? allData.filter(d => d.reg.toLowerCase().includes(q) || d.roll.includes(q)) : allData;
 const tbody = document.getElementById('allBody');
 if (q) {{
-tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td><td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
+tbody.innerHTML = filtered.map(d => `<tr><td><span class="rank-badge">#${{d.rank}}</span></td>${{showDay?`<td><span class="day-badge">${{d.day||''}}</span></td>`:''}}<td>${{d.reg}}</td><td>${{d.roll}}</td><td><strong>${{d.marks.toFixed(2)}}</strong></td>${{stats.has_norm?normCells(d):''}}<td>${{d.pctl.toFixed(2)}}</td></tr>`).join('');
 document.getElementById('pagination').innerHTML = '';
 }} else {{ renderTable(1); }}
 }}
@@ -430,9 +637,21 @@ const above = d.rank - 1;
 const below = total - d.rank;
 const pctPos = ((total - d.rank) / (total - 1)) * 100;
 title.textContent = `${{d.reg}} — ${{d.roll}} ${{d.day ? '('+d.day+')' : ''}}`;
+let normHtml = '';
+if (stats.has_norm && d.norm !== null && d.norm !== undefined) {{
+const dCls = d.delta > 0.001 ? 'green' : d.delta < -0.001 ? 'red' : '';
+const dTxt = d.delta > 0.001 ? `+${{d.delta.toFixed(2)}}` : d.delta.toFixed(2);
+normHtml = `
+<div class="search-stat"><div class="label">Raw Score</div><div class="value ${{d.marks >= 0 ? 'green' : 'red'}}">${{d.marks.toFixed(2)}}</div></div>
+<div class="search-stat"><div class="label">Normalised Score</div><div class="value">${{d.norm.toFixed(2)}}</div></div>
+<div class="search-stat"><div class="label">Change (Norm − Raw)</div><div class="value ${{dCls}}">${{dTxt}}</div></div>
+<div class="search-stat"><div class="label">Norm Rank</div><div class="value">#${{d.nrank}} / ${{total}}</div></div>`;
+}} else {{
+normHtml = `<div class="search-stat"><div class="label">Marks</div><div class="value ${{d.marks >= 0 ? 'green' : 'red'}}">${{d.marks.toFixed(2)}}</div></div>`;
+}}
 body.innerHTML = `
-<div class="search-stat"><div class="label">Rank</div><div class="value">#${{d.rank}} / ${{total}}</div></div>
-<div class="search-stat"><div class="label">Marks</div><div class="value ${{d.marks >= 0 ? 'green' : 'red'}}">${{d.marks.toFixed(2)}}</div></div>
+<div class="search-stat"><div class="label">Rank (Raw)</div><div class="value">#${{d.rank}} / ${{total}}</div></div>
+${{normHtml}}
 <div class="search-stat"><div class="label">Percentile</div><div class="value">${{d.pctl.toFixed(2)}}%</div></div>
 <div class="search-stat"><div class="label">Scored Above</div><div class="value green">${{above}}</div></div>
 <div class="search-stat"><div class="label">Scored Below</div><div class="value orange">${{below}}</div></div>
@@ -464,7 +683,7 @@ t.onchange = () => {{ document.body.classList.toggle('dark', t.checked); localSt
 if (t.checked) document.body.classList.add('dark');
 </script>
 <div class="disclaimer">
-<strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS. The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
+<strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS.{disclaimer_extra} The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
 </div>
 <div class="footer">Made for public use — <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a> | Source: <a href="https://github.com/goodguysarvagya/sgpgi_results_2026">github.com/goodguysarvagya/sgpgi_results_2026</a></div>
 </body>
@@ -533,7 +752,19 @@ def gen_index(all_positions):
                 sorted_m = sorted(records, key=lambda x: x["Marks"], reverse=True)
                 cr = sorted_m[vac["total"] - 1]
                 cutoff_info = f'<span class="vac-pill" style="background:var(--accent);color:var(--surface);">Cutoff: {cr["Marks"]:.2f} ({cr["Percentile"]:.1f}pctl)</span>'
-            vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}</div>'
+                if pos_name in NORM_MAPS and NORM_MAPS[pos_name] and any(r.get("Normalized") is not None for r in records):
+                    by_norm = sorted([r for r in records if r.get("Normalized") is not None],
+                                     key=lambda x: x["Normalized"], reverse=True)
+                    if vac["total"] <= len(by_norm):
+                        nc = by_norm[vac["total"] - 1]
+                        cutoff_info += f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Norm cutoff: {nc["Normalized"]:.2f}</span>'
+            norm_pill = '<span class="vac-pill" style="background:#2e7d32;color:#fff;">Normalised ✓</span>' if pos_name in NORM_MAPS and NORM_MAPS[pos_name] else ""
+            fmanifest = FINAL_MANIFEST or load_final_manifest()
+            final_pill = ""
+            if pos_name in fmanifest:
+                fm = fmanifest[pos_name]
+                final_pill = f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Final: {fm["selected"]} appointed</span>'
+            vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}{norm_pill}{final_pill}</div>'
 
         width_pct = total / max_total * 100 if max_total else 0
         onclick_attr = f'onclick="window.location.href=\'{card_link}\'" style="cursor:pointer"' if card_link else ""
@@ -548,6 +779,42 @@ def gen_index(all_positions):
         </div>"""
 
     total_exams = sorted(set(e for pd in position_days.values() for e in pd["exams"]))
+
+    fmanifest = FINAL_MANIFEST or load_final_manifest()
+    final_entries = []
+    for pos_name in sorted(fmanifest.keys()):
+        fm = fmanifest[pos_name]
+        prefetch_paths.add(fm["html"])
+        # escape double quotes for JS string safety
+        nm = pos_name.replace('"', "'")
+        final_entries.append(
+            f'    {{ name: "{nm}", safe: "{fm["safe"]}", selected: {fm["selected"]}, '
+            f'clarification: {fm["clarification"]}, rejected: {fm["rejected"]}, total: {fm["total"]} }},'
+        )
+    if final_entries:
+        final_js = "\n".join(final_entries)
+        final_section = """<div style="margin-top:36px;padding-top:20px;border-top:2px solid #2e7d32;">
+<h2 style="font-size:22px;color:#2e7d32;margin-bottom:4px;">Final Selection</h2>
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px;">Selection Committee recommendations — appointment issued, clarification needed, or not eligible</p>
+<div class="grid" id="finalGrid"></div>
+</div>"""
+        final_script = f"""const finalPositions = [
+{final_js}
+];
+const finalGrid = document.getElementById('finalGrid');
+if (finalGrid) {{
+finalGrid.innerHTML = finalPositions.map(p => {{
+    const link = `analysis/final_selection/${{p.safe}}_final_selection.html`;
+    return `<div class="pos-card" onclick="window.location.href='${{link}}'" style="cursor:pointer;border-left:4px solid #2e7d32;">
+        <div class="pos-name">${{p.name}}</div>
+        <div class="pos-stats"><span class="stat">${{p.total}} in final list</span><span class="stat-sep">|</span><span class="stat" style="color:#2e7d32;font-weight:700;">${{p.selected}} appointed</span><span class="stat-sep">|</span><span class="stat" style="color:#e65100;font-weight:600;">${{p.clarification}} clarification</span><span class="stat-sep">|</span><span class="stat" style="color:#c62828;">${{p.rejected}} not eligible</span></div>
+    </div>`;
+}}).join('');
+}}
+"""
+    else:
+        final_section = ""
+        final_script = ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -613,6 +880,7 @@ h1 {{ font-size: 26px; color: var(--accent); }}
 <p style="color:var(--text2);font-size:13px;margin-bottom:14px;">Candidates called for Skill Test or Document Verification</p>
 <div class="grid" id="calledGrid"></div>
 </div>
+{final_section}
 <div class="disclaimer">
 <strong>Disclaimer:</strong> All data on this site is generated from official raw score PDFs published by SGPGIMS. The expected cutoffs shown are <strong>calculated estimates</strong> based on total vacancies and candidate ranks — they are <strong>not official cutoffs</strong>. Actual category-wise cutoffs will be published by SGPGIMS in due course and will be updated here when released.
 </div>
@@ -641,6 +909,7 @@ calledGrid.innerHTML = calledPositions.map(p => {{
     </div>`;
 }}).join('');
 
+{final_script}
 const t = document.getElementById('darkToggle');
 const m = window.matchMedia('(prefers-color-scheme:dark)');
 t.checked = localStorage.getItem('dark') === '1' || (!localStorage.getItem('dark') && m.matches);
@@ -665,6 +934,11 @@ pdfs = [
 ]
 
 all_positions = defaultdict(list)
+
+NORM_MAPS = load_normalized_scores()
+FINAL_MANIFEST = load_final_manifest()
+if FINAL_MANIFEST:
+    print(f"  [Final] {len(FINAL_MANIFEST)} positions with final selection data")
 
 for pdf_path, day_label, exam_date in pdfs:
     doc = fitz.open(pdf_path)

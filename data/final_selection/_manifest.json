@@ -1,0 +1,72 @@
+{
+  "CSSD Assistant": {
+    "safe": "CSSD_Assistant",
+    "total": 2,
+    "selected": 1,
+    "clarification": 1,
+    "rejected": 0,
+    "html": "analysis/final_selection/CSSD_Assistant_final_selection.html",
+    "source_pdf": "CSSD Asstt._0001.pdf",
+    "exam_date": "19.06.2026"
+  },
+  "Draftsman": {
+    "safe": "Draftsman",
+    "total": 1,
+    "selected": 1,
+    "clarification": 0,
+    "rejected": 0,
+    "html": "analysis/final_selection/Draftsman_final_selection.html",
+    "source_pdf": "Draftsman_0001.pdf",
+    "exam_date": "19.06.2026"
+  },
+  "Junior Accounts Officer": {
+    "safe": "Junior_Accounts_Officer",
+    "total": 5,
+    "selected": 3,
+    "clarification": 1,
+    "rejected": 1,
+    "html": "analysis/final_selection/Junior_Accounts_Officer_final_selection.html",
+    "source_pdf": "Junior Accounts Officer_0001.pdf",
+    "exam_date": "19.06.2026"
+  },
+  "Medical Social Service Officer Gr-II": {
+    "safe": "Medical_Social_Service_Officer_Gr-II",
+    "total": 2,
+    "selected": 2,
+    "clarification": 0,
+    "rejected": 0,
+    "html": "analysis/final_selection/Medical_Social_Service_Officer_Gr-II_final_selection.html",
+    "source_pdf": "Medical Social Service Officer Gr. II_0001.pdf",
+    "exam_date": "20.06.2026"
+  },
+  "Nuclear Medicine Technologist": {
+    "safe": "Nuclear_Medicine_Technologist",
+    "total": 1,
+    "selected": 1,
+    "clarification": 0,
+    "rejected": 0,
+    "html": "analysis/final_selection/Nuclear_Medicine_Technologist_final_selection.html",
+    "source_pdf": "Nuclear Medicine Technologist_0001.pdf",
+    "exam_date": "19.06.2026"
+  },
+  "O.T. Assistant": {
+    "safe": "OT_Assistant",
+    "total": 24,
+    "selected": 13,
+    "clarification": 9,
+    "rejected": 2,
+    "html": "analysis/final_selection/OT_Assistant_final_selection.html",
+    "source_pdf": "OT Assistant (Unfilled Backlog)_0001.pdf",
+    "exam_date": "20.06.2026"
+  },
+  "Technical Officer (CWS Biomedical)": {
+    "safe": "Technical_Officer_CWS_Biomedical",
+    "total": 1,
+    "selected": 1,
+    "clarification": 0,
+    "rejected": 0,
+    "html": "analysis/final_selection/Technical_Officer_CWS_Biomedical_final_selection.html",
+    "source_pdf": "Technical Officer (CWS Biomedical)_0001.pdf",
+    "exam_date": "19.06.2026"
+  }
+}
