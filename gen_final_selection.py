@@ -68,6 +68,48 @@ def status_of(recommendation):
     return "other"
 
 
+CAT_ORDER = ["SC", "ST", "OBC", "EWS", "UR"]
+
+def compute_fill(vac, rows):
+    """Vacancy-fill summary: appointed/pending/unfilled totals + per-category.
+
+    Appointed/pending are counted under Selection_Category. Unfilled = vacancies
+    minus appointed as per this published list; clarification cases are pending
+    and may still convert.
+    """
+    appointed = {}
+    pending = {}
+    for r in rows:
+        cat = (r["Selection_Category"] or "").strip().upper()
+        if r["status"] == "selected":
+            appointed[cat] = appointed.get(cat, 0) + 1
+        elif r["status"] == "clarification":
+            pending[cat] = pending.get(cat, 0) + 1
+    n_app = sum(appointed.values())
+    n_pend = sum(pending.values())
+    total_vac = (vac or {}).get("total", 0)
+    by_cat = []
+    for c in CAT_ORDER:
+        vv = (vac or {}).get(c.lower(), 0)
+        a = appointed.get(c, 0)
+        p = pending.get(c, 0)
+        if vv or a or p:
+            by_cat.append({"cat": c, "vacancies": vv, "appointed": a,
+                           "pending": p, "unfilled": vv - a})
+    extra_cats = sorted(set(appointed) | set(pending) - set(CAT_ORDER) - {""})
+    for c in extra_cats:
+        by_cat.append({"cat": c or "?", "vacancies": 0, "appointed": appointed.get(c, 0),
+                       "pending": pending.get(c, 0), "unfilled": 0})
+    return {
+        "vacancies": total_vac,
+        "appointed": n_app,
+        "pending": n_pend,
+        "unfilled": total_vac - n_app,
+        "fully_filled": bool(total_vac) and (total_vac - n_app) <= 0,
+        "by_category": by_cat,
+    }
+
+
 def read_combined(safe_name):
     path = combined_dir / f"{safe_name}_analysis.csv"
     if not path.exists():
@@ -90,7 +132,7 @@ def read_called(safe_name):
     return out
 
 
-def gen_position_html(pos_name, safe_name, rows, source_pdf, exam_date, vac, called_map):
+def gen_position_html(pos_name, safe_name, rows, source_pdf, exam_date, vac, called_map, fill):
     total = len(rows)
     n_sel = sum(1 for r in rows if r["status"] == "selected")
     n_clar = sum(1 for r in rows if r["status"] == "clarification")
@@ -119,6 +161,30 @@ def gen_position_html(pos_name, safe_name, rows, source_pdf, exam_date, vac, cal
     level = vac.get("level", "") if vac else ""
     group = vac.get("group", "") if vac else ""
     vac_total = vac.get("total", 0) if vac else 0
+
+    if vac_total:
+        cat_rows = "".join(
+            f'<tr><td><strong>{c["cat"]}</strong></td><td>{c["vacancies"]}</td>'
+            f'<td style="color:#2e7d32;font-weight:700;">{c["appointed"]}</td>'
+            f'<td style="color:#e65100;font-weight:700;">{c["pending"]}</td>'
+            f'<td style="color:#c62828;font-weight:700;">{c["unfilled"]}</td></tr>'
+            for c in fill["by_category"]
+        )
+        fill_banner = "All vacancies filled ✓" if fill["fully_filled"] else f'{fill["unfilled"]} of {fill["vacancies"]} seats remain unfilled'
+        fill_html = f"""<div class="table-wrap">
+<h3>Vacancy Fill — Seats Remaining Unfilled ({fill_banner})</h3>
+<div class="stats-grid" style="margin-bottom:10px;">
+<div class="stat-card"><div class="label">Vacancies</div><div class="value">{fill["vacancies"]}</div></div>
+<div class="stat-card"><div class="label">Appointed</div><div class="value green">{fill["appointed"]}</div></div>
+<div class="stat-card"><div class="label">Pending Clarification</div><div class="value orange">{fill["pending"]}</div></div>
+<div class="stat-card"><div class="label">Seats Unfilled</div><div class="value red">{fill["unfilled"]}</div></div>
+</div>
+<table><thead><tr><th>Category</th><th>Vacancies</th><th>Appointed</th><th>Pending</th><th>Unfilled</th></tr></thead>
+<tbody>{cat_rows}</tbody></table>
+<p style="font-size:11px;color:var(--text2);margin-top:8px;">Unfilled = advertised vacancies minus appointment-issued candidates in this list. Clarification cases are pending and may still convert.</p>
+</div>"""
+    else:
+        fill_html = ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -204,6 +270,8 @@ tr:hover td {{ background: var(--hover-bg); }}
 <div class="info-box" id="infoBox"></div>
 
 <div class="stats-grid" id="statsGrid"></div>
+
+{fill_html}
 
 <div class="note-box" id="xcheckBox" style="display:none"></div>
 
@@ -431,7 +499,8 @@ def main():
             print(f"  NOTE: called for DV but NOT in final list: {missing_from_final}")
 
         vac = VACANCIES.get(pos_name, {})
-        html = gen_position_html(pos_name, safe_name, rows, source_pdf, exam_date, vac, called_map)
+        fill = compute_fill(vac, rows)
+        html = gen_position_html(pos_name, safe_name, rows, source_pdf, exam_date, vac, called_map, fill)
         # define called-missing list for the xcheck box (before loadData runs)
         html = html.replace("loadData();", f"window.__calledMissing = {json.dumps(missing_from_final)};\nloadData();", 1)
         html_path = html_dir / f"{safe_name}_final_selection.html"
@@ -447,11 +516,17 @@ def main():
             "selected": n_sel,
             "clarification": n_clar,
             "rejected": n_rej,
+            "vacancies": fill["vacancies"],
+            "appointed": fill["appointed"],
+            "pending": fill["pending"],
+            "unfilled": fill["unfilled"],
+            "fully_filled": fill["fully_filled"],
+            "fill_by_category": fill["by_category"],
             "html": f"analysis/final_selection/{safe_name}_final_selection.html",
             "source_pdf": source_pdf,
             "exam_date": exam_date,
         }
-        print(f"  Generated: {html_path.name} (selected={n_sel} clarification={n_clar} rejected={n_rej})")
+        print(f"  Generated: {html_path.name} (selected={n_sel} clarification={n_clar} rejected={n_rej} unfilled={fill['unfilled']}/{fill['vacancies']})")
 
     with open(final_dir / "_manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)

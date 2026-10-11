@@ -763,7 +763,15 @@ def gen_index(all_positions):
             final_pill = ""
             if pos_name in fmanifest:
                 fm = fmanifest[pos_name]
-                final_pill = f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Final: {fm["selected"]} appointed</span>'
+                app = fm.get("appointed", fm.get("selected", 0))
+                vacn = fm.get("vacancies", 0)
+                unf = fm.get("unfilled", 0)
+                if vacn and unf <= 0:
+                    final_pill = f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Final: all {vacn} filled ✓</span>'
+                elif vacn:
+                    final_pill = f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Final: {app}/{vacn} filled · {unf} unfilled</span>'
+                else:
+                    final_pill = f'<span class="vac-pill" style="background:#2e7d32;color:#fff;">Final: {app} appointed</span>'
             vac_line = f'<div class="vac-line"><span class="vac-pill">{vac["level"]} / Gr {vac["group"]}</span><span class="vac-pill">{vac["advt"]}</span><span class="vac-pill">Vacancies: {vac["total"]} ({cats})</span>{cutoff_info}{norm_pill}{final_pill}</div>'
 
         width_pct = total / max_total * 100 if max_total else 0
@@ -788,8 +796,9 @@ def gen_index(all_positions):
         # escape double quotes for JS string safety
         nm = pos_name.replace('"', "'")
         final_entries.append(
-            f'    {{ name: "{nm}", safe: "{fm["safe"]}", selected: {fm["selected"]}, '
-            f'clarification: {fm["clarification"]}, rejected: {fm["rejected"]}, total: {fm["total"]} }},'
+            f'    {{ name: "{nm}", safe: "{fm["safe"]}", selected: {fm.get("selected", 0)}, '
+            f'clarification: {fm.get("clarification", 0)}, rejected: {fm.get("rejected", 0)}, total: {fm.get("total", 0)}, '
+            f'vacancies: {fm.get("vacancies", 0)}, appointed: {fm.get("appointed", fm.get("selected", 0))}, unfilled: {fm.get("unfilled", 0)} }},'
         )
     if final_entries:
         final_js = "\n".join(final_entries)
@@ -803,11 +812,17 @@ def gen_index(all_positions):
 ];
 const finalGrid = document.getElementById('finalGrid');
 if (finalGrid) {{
+function fillLine(p) {{
+    if (!p.vacancies) return '';
+    if (p.unfilled <= 0) return `<span class="stat" style="color:#2e7d32;font-weight:700;">All ${{p.vacancies}} seats filled ✓</span>`;
+    return `<span class="stat">${{p.appointed}}/${{p.vacancies}} seats filled</span><span class="stat-sep">|</span><span class="stat" style="color:#c62828;font-weight:700;">${{p.unfilled}} unfilled</span>`;
+}}
 finalGrid.innerHTML = finalPositions.map(p => {{
     const link = `analysis/final_selection/${{p.safe}}_final_selection.html`;
     return `<div class="pos-card" onclick="window.location.href='${{link}}'" style="cursor:pointer;border-left:4px solid #2e7d32;">
         <div class="pos-name">${{p.name}}</div>
         <div class="pos-stats"><span class="stat">${{p.total}} in final list</span><span class="stat-sep">|</span><span class="stat" style="color:#2e7d32;font-weight:700;">${{p.selected}} appointed</span><span class="stat-sep">|</span><span class="stat" style="color:#e65100;font-weight:600;">${{p.clarification}} clarification</span><span class="stat-sep">|</span><span class="stat" style="color:#c62828;">${{p.rejected}} not eligible</span></div>
+        <div class="pos-stats">${{fillLine(p)}}</div>
     </div>`;
 }}).join('');
 }}

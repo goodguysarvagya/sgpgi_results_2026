@@ -5,6 +5,48 @@
     "selected": 1,
     "clarification": 1,
     "rejected": 0,
+    "vacancies": 20,
+    "appointed": 1,
+    "pending": 1,
+    "unfilled": 19,
+    "fully_filled": false,
+    "fill_by_category": [
+      {
+        "cat": "SC",
+        "vacancies": 4,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 4
+      },
+      {
+        "cat": "OBC",
+        "vacancies": 6,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 6
+      },
+      {
+        "cat": "EWS",
+        "vacancies": 2,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "UR",
+        "vacancies": 8,
+        "appointed": 1,
+        "pending": 1,
+        "unfilled": 7
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 1,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/CSSD_Assistant_final_selection.html",
     "source_pdf": "CSSD Asstt._0001.pdf",
     "exam_date": "19.06.2026"
@@ -15,6 +57,27 @@
     "selected": 1,
     "clarification": 0,
     "rejected": 0,
+    "vacancies": 1,
+    "appointed": 1,
+    "pending": 0,
+    "unfilled": 0,
+    "fully_filled": true,
+    "fill_by_category": [
+      {
+        "cat": "UR",
+        "vacancies": 1,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/Draftsman_final_selection.html",
     "source_pdf": "Draftsman_0001.pdf",
     "exam_date": "19.06.2026"
@@ -25,6 +88,48 @@
     "selected": 3,
     "clarification": 1,
     "rejected": 1,
+    "vacancies": 6,
+    "appointed": 3,
+    "pending": 1,
+    "unfilled": 3,
+    "fully_filled": false,
+    "fill_by_category": [
+      {
+        "cat": "SC",
+        "vacancies": 2,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "OBC",
+        "vacancies": 1,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "UR",
+        "vacancies": 3,
+        "appointed": 2,
+        "pending": 1,
+        "unfilled": 1
+      },
+      {
+        "cat": "OBC",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 2,
+        "pending": 1,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/Junior_Accounts_Officer_final_selection.html",
     "source_pdf": "Junior Accounts Officer_0001.pdf",
     "exam_date": "19.06.2026"
@@ -35,6 +140,27 @@
     "selected": 2,
     "clarification": 0,
     "rejected": 0,
+    "vacancies": 2,
+    "appointed": 2,
+    "pending": 0,
+    "unfilled": 0,
+    "fully_filled": true,
+    "fill_by_category": [
+      {
+        "cat": "UR",
+        "vacancies": 2,
+        "appointed": 2,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 2,
+        "pending": 0,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/Medical_Social_Service_Officer_Gr-II_final_selection.html",
     "source_pdf": "Medical Social Service Officer Gr. II_0001.pdf",
     "exam_date": "20.06.2026"
@@ -45,6 +171,41 @@
     "selected": 1,
     "clarification": 0,
     "rejected": 0,
+    "vacancies": 7,
+    "appointed": 1,
+    "pending": 0,
+    "unfilled": 6,
+    "fully_filled": false,
+    "fill_by_category": [
+      {
+        "cat": "SC",
+        "vacancies": 2,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "OBC",
+        "vacancies": 2,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "UR",
+        "vacancies": 3,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/Nuclear_Medicine_Technologist_final_selection.html",
     "source_pdf": "Nuclear Medicine Technologist_0001.pdf",
     "exam_date": "19.06.2026"
@@ -55,6 +216,55 @@
     "selected": 13,
     "clarification": 9,
     "rejected": 2,
+    "vacancies": 81,
+    "appointed": 13,
+    "pending": 9,
+    "unfilled": 68,
+    "fully_filled": false,
+    "fill_by_category": [
+      {
+        "cat": "SC",
+        "vacancies": 21,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 20
+      },
+      {
+        "cat": "ST",
+        "vacancies": 2,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 2
+      },
+      {
+        "cat": "OBC",
+        "vacancies": 30,
+        "appointed": 0,
+        "pending": 0,
+        "unfilled": 30
+      },
+      {
+        "cat": "UR",
+        "vacancies": 28,
+        "appointed": 12,
+        "pending": 9,
+        "unfilled": 16
+      },
+      {
+        "cat": "SC",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "UR",
+        "vacancies": 0,
+        "appointed": 12,
+        "pending": 9,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/OT_Assistant_final_selection.html",
     "source_pdf": "OT Assistant (Unfilled Backlog)_0001.pdf",
     "exam_date": "20.06.2026"
@@ -65,6 +275,27 @@
     "selected": 1,
     "clarification": 0,
     "rejected": 0,
+    "vacancies": 1,
+    "appointed": 1,
+    "pending": 0,
+    "unfilled": 0,
+    "fully_filled": true,
+    "fill_by_category": [
+      {
+        "cat": "SC",
+        "vacancies": 1,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      },
+      {
+        "cat": "SC",
+        "vacancies": 0,
+        "appointed": 1,
+        "pending": 0,
+        "unfilled": 0
+      }
+    ],
     "html": "analysis/final_selection/Technical_Officer_CWS_Biomedical_final_selection.html",
     "source_pdf": "Technical Officer (CWS Biomedical)_0001.pdf",
     "exam_date": "19.06.2026"
